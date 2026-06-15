@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { ArrowLeft, CheckCircle2, Circle, Clock, PlayCircle } from "lucide-react";
 import { useStore } from "@/lib/store";
 import { useT } from "@/lib/i18n";
@@ -38,7 +39,10 @@ export default function CourseDetailPage() {
 
   function startLearning() {
     if (!user) return router.push("/login");
-    enroll(course!.id);
+    if (!useStore.getState().isEnrolled(course!.id)) {
+      enroll(course!.id);
+      toast.success(t("toast.enrolled"));
+    }
     router.push(`/courses/${course!.id}/lessons/${firstUnfinished.id}`);
   }
 

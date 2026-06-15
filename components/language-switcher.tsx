@@ -1,24 +1,37 @@
 "use client";
 
+import { Check, Globe } from "lucide-react";
 import { LANGS, useI18n } from "@/lib/i18n";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
+const NAMES: Record<string, string> = { en: "English", ru: "Русский", kk: "Қазақша" };
 
 export function LanguageSwitcher() {
   const { lang, setLang } = useI18n();
   return (
-    <div className="inline-flex rounded-[var(--radius-md)] border border-border bg-card p-0.5">
-      {LANGS.map((l) => (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
         <button
-          key={l.code}
-          onClick={() => setLang(l.code)}
-          className={`rounded-[calc(var(--radius-md)-2px)] px-2 py-1 text-xs font-semibold transition ${
-            lang === l.code
-              ? "bg-primary text-primary-foreground"
-              : "text-muted-foreground hover:text-foreground"
-          }`}
+          aria-label="Change language"
+          className="inline-flex h-9 items-center gap-1.5 rounded-[var(--radius-md)] border border-border bg-card px-2.5 text-xs font-semibold text-foreground transition hover:bg-muted"
         >
-          {l.label}
+          <Globe className="h-4 w-4" />
+          {lang.toUpperCase()}
         </button>
-      ))}
-    </div>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="min-w-40">
+        {LANGS.map((l) => (
+          <DropdownMenuItem key={l.code} onClick={() => setLang(l.code)} className="justify-between">
+            {NAMES[l.code]}
+            {lang === l.code && <Check className="h-4 w-4 text-primary" />}
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

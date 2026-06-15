@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { ArrowLeft, ArrowRight, CheckCircle2, PlayCircle } from "lucide-react";
 import { AuthGuard } from "@/components/auth-guard";
 import { useStore } from "@/lib/store";
@@ -56,10 +57,12 @@ function Lesson() {
     const c = certs.find((x) => x.courseId === courseId);
     const fullyDone = useStore.getState().courseProgressPct(courseId) === 100;
     if (fullyDone && c) {
+      toast.success(t("toast.courseDone"));
       setCert(c);
       setShowCert(true);
-    } else if (next) {
-      router.push(`/courses/${courseId}/lessons/${next.id}`);
+    } else {
+      toast.success(t("toast.lessonDone"));
+      if (next) router.push(`/courses/${courseId}/lessons/${next.id}`);
     }
   }
 

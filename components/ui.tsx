@@ -9,11 +9,11 @@ type ButtonSize = "sm" | "md" | "lg" | "icon";
 
 const buttonVariants: Record<ButtonVariant, string> = {
   primary:
-    "bg-primary text-primary-foreground hover:opacity-90 shadow-sm shadow-primary/20",
-  secondary: "bg-secondary text-secondary-foreground hover:opacity-90",
-  outline: "border border-border bg-card text-foreground hover:bg-muted",
+    "text-primary-foreground shadow-sm shadow-primary/25 [background:linear-gradient(180deg,color-mix(in_srgb,var(--primary)_92%,white),var(--primary))] hover:shadow-md hover:shadow-primary/30 hover:brightness-[1.05]",
+  secondary: "bg-secondary text-secondary-foreground hover:brightness-[1.03]",
+  outline: "border border-border bg-card text-foreground hover:bg-muted hover:border-primary/40",
   ghost: "text-foreground hover:bg-muted",
-  danger: "bg-danger text-white hover:opacity-90",
+  danger: "bg-danger text-white hover:brightness-105",
 };
 const buttonSizes: Record<ButtonSize, string> = {
   sm: "h-8 px-3 text-sm",
@@ -34,7 +34,7 @@ export function Button({
   return (
     <button
       className={cn(
-        "inline-flex items-center justify-center gap-2 rounded-[var(--radius-md)] font-medium transition active:scale-[.98] disabled:pointer-events-none disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+        "inline-flex items-center justify-center gap-2 rounded-[var(--radius-md)] font-semibold transition-all duration-200 active:scale-[.98] disabled:pointer-events-none disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
         buttonVariants[variant],
         buttonSizes[size],
         className,
@@ -49,7 +49,7 @@ export function Card({ className, ...props }: React.HTMLAttributes<HTMLDivElemen
   return (
     <div
       className={cn(
-        "rounded-[var(--radius-lg)] border border-border bg-card text-card-foreground",
+        "rounded-[var(--radius-lg)] border border-border bg-card text-card-foreground shadow-sm shadow-black/[0.03]",
         className,
       )}
       {...props}
@@ -58,14 +58,15 @@ export function Card({ className, ...props }: React.HTMLAttributes<HTMLDivElemen
 }
 
 /* ---------------- Badge ---------------- */
-type BadgeTone = "default" | "primary" | "accent" | "success" | "warning" | "danger" | "muted";
+type BadgeTone = "default" | "primary" | "info" | "success" | "warning" | "danger" | "violet" | "muted";
 const badgeTones: Record<BadgeTone, string> = {
-  default: "bg-muted text-foreground",
+  default: "bg-muted text-muted-foreground",
   primary: "bg-secondary text-secondary-foreground",
-  accent: "bg-accent/15 text-accent",
-  success: "bg-success/15 text-success",
-  warning: "bg-warning/15 text-warning",
-  danger: "bg-danger/15 text-danger",
+  info: "bg-info/12 text-info",
+  success: "bg-success/12 text-success",
+  warning: "bg-warning/12 text-warning",
+  danger: "bg-danger/12 text-danger",
+  violet: "bg-violet/12 text-violet",
   muted: "bg-muted text-muted-foreground",
 };
 export function Badge({
@@ -76,7 +77,7 @@ export function Badge({
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium",
+        "inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold",
         badgeTones[tone],
         className,
       )}
@@ -90,7 +91,7 @@ export function Input({ className, ...props }: React.InputHTMLAttributes<HTMLInp
   return (
     <input
       className={cn(
-        "h-10 w-full rounded-[var(--radius-md)] border border-input bg-card px-3 text-sm outline-none transition placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring",
+        "h-10 w-full rounded-[var(--radius-md)] border border-input bg-card px-3 text-sm outline-none transition placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:border-primary/40",
         className,
       )}
       {...props}
@@ -102,7 +103,7 @@ export function Textarea({ className, ...props }: React.TextareaHTMLAttributes<H
   return (
     <textarea
       className={cn(
-        "min-h-24 w-full rounded-[var(--radius-md)] border border-input bg-card px-3 py-2 text-sm outline-none transition placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring",
+        "min-h-24 w-full rounded-[var(--radius-md)] border border-input bg-card px-3 py-2 text-sm outline-none transition placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:border-primary/40",
         className,
       )}
       {...props}
@@ -114,7 +115,7 @@ export function Select({ className, ...props }: React.SelectHTMLAttributes<HTMLS
   return (
     <select
       className={cn(
-        "h-10 w-full rounded-[var(--radius-md)] border border-input bg-card px-3 text-sm outline-none transition focus-visible:ring-2 focus-visible:ring-ring",
+        "h-10 w-full rounded-[var(--radius-md)] border border-input bg-card px-3 text-sm outline-none transition focus-visible:ring-2 focus-visible:ring-ring focus-visible:border-primary/40",
         className,
       )}
       {...props}
@@ -131,7 +132,7 @@ export function Progress({ value, className }: { value: number; className?: stri
   return (
     <div className={cn("h-2 w-full overflow-hidden rounded-full bg-muted", className)}>
       <div
-        className="h-full rounded-full bg-primary transition-all duration-500"
+        className="h-full rounded-full transition-all duration-500 [background:linear-gradient(90deg,var(--primary),var(--violet))]"
         style={{ width: `${Math.min(100, Math.max(0, value))}%` }}
       />
     </div>
@@ -150,8 +151,8 @@ export function Chip({
       className={cn(
         "rounded-full border px-3.5 py-1.5 text-sm font-medium transition",
         active
-          ? "border-primary bg-primary text-primary-foreground"
-          : "border-border bg-card text-foreground hover:border-primary/50",
+          ? "border-primary bg-primary text-primary-foreground shadow-sm shadow-primary/25"
+          : "border-border bg-card text-foreground hover:border-primary/50 hover:bg-muted",
         className,
       )}
       {...props}
@@ -174,12 +175,12 @@ export function Dialog({
   if (!open) return null;
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 p-4 backdrop-blur-sm"
       onClick={onClose}
     >
       <div
         className={cn(
-          "max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-[var(--radius-lg)] border border-border bg-card p-6 shadow-2xl",
+          "max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-[var(--radius-xl)] border border-border bg-card p-6 shadow-2xl animate-fade-up",
           className,
         )}
         onClick={(e) => e.stopPropagation()}

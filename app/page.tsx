@@ -35,8 +35,9 @@ export default function Home() {
   return (
     <div>
       {/* Hero */}
-      <section className="gradient-hero">
-        <div className="mx-auto max-w-7xl px-4 pb-16 pt-16 sm:pt-24">
+      <section className="relative overflow-hidden gradient-hero">
+        <div className="pointer-events-none absolute inset-0 grid-bg" aria-hidden />
+        <div className="relative mx-auto max-w-7xl px-4 pb-16 pt-16 sm:pt-24">
           <div className="mx-auto max-w-3xl text-center animate-fade-up">
             <Badge tone="primary" className="mb-5">
               <Sparkles className="h-3.5 w-3.5" /> {t("hero.badge")}
@@ -69,7 +70,7 @@ export default function Home() {
                 { v: `${courseCount}`, l: t("hero.statCourses") },
                 { v: "3", l: t("hero.statLangs") },
               ].map((s) => (
-                <Card key={s.l} className="px-3 py-4">
+                <Card key={s.l} className="glass px-3 py-4">
                   <p className="text-2xl font-bold gradient-text">{s.v}</p>
                   <p className="text-xs text-muted-foreground">{s.l}</p>
                 </Card>

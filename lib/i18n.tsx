@@ -172,6 +172,14 @@ const en: Dict = {
 
   "guard.signin": "Please log in to continue.",
   "guard.goLogin": "Go to login",
+
+  "toast.saved": "Saved to favorites",
+  "toast.removed": "Removed from favorites",
+  "toast.enrolled": "Enrolled — let's learn!",
+  "toast.lessonDone": "Lesson completed",
+  "toast.courseDone": "Course completed! Certificate issued 🎉",
+  "toast.adminSaved": "Saved",
+  "toast.adminDeleted": "Deleted",
 };
 
 const ru: Dict = {
@@ -341,6 +349,14 @@ const ru: Dict = {
 
   "guard.signin": "Войдите, чтобы продолжить.",
   "guard.goLogin": "К входу",
+
+  "toast.saved": "Добавлено в избранное",
+  "toast.removed": "Удалено из избранного",
+  "toast.enrolled": "Вы записаны — учимся!",
+  "toast.lessonDone": "Урок пройден",
+  "toast.courseDone": "Курс пройден! Сертификат выдан 🎉",
+  "toast.adminSaved": "Сохранено",
+  "toast.adminDeleted": "Удалено",
 };
 
 const kk: Dict = {
@@ -510,6 +526,14 @@ const kk: Dict = {
 
   "guard.signin": "Жалғастыру үшін кіріңіз.",
   "guard.goLogin": "Кіру бетіне",
+
+  "toast.saved": "Таңдаулыға қосылды",
+  "toast.removed": "Таңдаулыдан алынды",
+  "toast.enrolled": "Тіркелдіңіз — оқиық!",
+  "toast.lessonDone": "Сабақ аяқталды",
+  "toast.courseDone": "Курс аяқталды! Сертификат берілді 🎉",
+  "toast.adminSaved": "Сақталды",
+  "toast.adminDeleted": "Жойылды",
 };
 
 const DICTS: Record<Lang, Dict> = { en, ru, kk };

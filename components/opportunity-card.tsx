@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { Bookmark, BookmarkCheck, CalendarClock } from "lucide-react";
 import type { Opportunity } from "@/lib/types";
 import { useStore } from "@/lib/store";
@@ -27,6 +28,7 @@ export function OpportunityCard({ opp }: { opp: Opportunity }) {
       return;
     }
     toggleSave(opp.id);
+    toast.success(saved ? t("toast.removed") : t("toast.saved"));
   }
 
   return (
@@ -52,7 +54,7 @@ export function OpportunityCard({ opp }: { opp: Opportunity }) {
       <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">{opp.description}</p>
 
       <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
-        <Badge tone="accent">{opp.format}</Badge>
+        <Badge tone="info">{opp.format}</Badge>
         <Badge tone="muted">{t("common.grade")} {opp.gradeMin}–{opp.gradeMax}</Badge>
       </div>
 

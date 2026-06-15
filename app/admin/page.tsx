@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { toast } from "sonner";
 import { BookOpen, GraduationCap, LayoutGrid, Pencil, Plus, Trash2, Users } from "lucide-react";
 import { AuthGuard } from "@/components/auth-guard";
 import { useStore } from "@/lib/store";
@@ -159,7 +160,7 @@ function OppsManager({ opportunities }: { opportunities: Opportunity[] }) {
             <Button variant="ghost" size="icon" onClick={() => { setEditing(o); setOpen(true); }} aria-label="Edit">
               <Pencil className="h-4 w-4" />
             </Button>
-            <Button variant="ghost" size="icon" onClick={() => del(o.id)} aria-label="Delete">
+            <Button variant="ghost" size="icon" onClick={() => { del(o.id); toast.success(t("toast.adminDeleted")); }} aria-label="Delete">
               <Trash2 className="h-4 w-4 text-danger" />
             </Button>
           </Card>
@@ -171,7 +172,7 @@ function OppsManager({ opportunities }: { opportunities: Opportunity[] }) {
           <OppForm
             initial={editing}
             onCancel={() => setOpen(false)}
-            onSave={(o) => { save(o); setOpen(false); }}
+            onSave={(o) => { save(o); setOpen(false); toast.success(t("toast.adminSaved")); }}
           />
         )}
       </Dialog>
@@ -305,7 +306,7 @@ function CoursesManager({ courses }: { courses: Course[] }) {
             <Button variant="ghost" size="icon" onClick={() => { setEditing(c); setOpen(true); }} aria-label="Edit">
               <Pencil className="h-4 w-4" />
             </Button>
-            <Button variant="ghost" size="icon" onClick={() => del(c.id)} aria-label="Delete">
+            <Button variant="ghost" size="icon" onClick={() => { del(c.id); toast.success(t("toast.adminDeleted")); }} aria-label="Delete">
               <Trash2 className="h-4 w-4 text-danger" />
             </Button>
           </Card>
@@ -314,7 +315,7 @@ function CoursesManager({ courses }: { courses: Course[] }) {
 
       <Dialog open={open} onClose={() => setOpen(false)}>
         {editing && (
-          <CourseForm initial={editing} onCancel={() => setOpen(false)} onSave={(c) => { save(c); setOpen(false); }} />
+          <CourseForm initial={editing} onCancel={() => setOpen(false)} onSave={(c) => { save(c); setOpen(false); toast.success(t("toast.adminSaved")); }} />
         )}
       </Dialog>
     </div>

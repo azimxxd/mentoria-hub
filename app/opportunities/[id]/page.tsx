@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { ArrowLeft, Bookmark, BookmarkCheck, CalendarClock, ExternalLink } from "lucide-react";
 import { useStore } from "@/lib/store";
 import { useI18n, useT } from "@/lib/i18n";
@@ -36,6 +37,7 @@ export default function OpportunityDetailPage() {
   function onSave() {
     if (!user) return router.push("/login");
     toggleSave(opp!.id);
+    toast.success(saved ? t("toast.removed") : t("toast.saved"));
   }
 
   return (
@@ -48,7 +50,7 @@ export default function OpportunityDetailPage() {
         <div className="flex flex-wrap items-center gap-2">
           <Badge tone="primary">{opp.direction}</Badge>
           <Badge tone="muted">{opp.category}</Badge>
-          <Badge tone="accent">{opp.format}</Badge>
+          <Badge tone="info">{opp.format}</Badge>
           <Badge tone="muted">{t("common.grade")} {opp.gradeMin}–{opp.gradeMax}</Badge>
         </div>
 

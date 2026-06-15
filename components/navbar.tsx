@@ -3,12 +3,21 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
-import { GraduationCap, Menu, X } from "lucide-react";
+import { GraduationCap, LayoutDashboard, LogOut, Map, Menu, Shield, X } from "lucide-react";
 import { useT } from "@/lib/i18n";
 import { useHydrated, useStore } from "@/lib/store";
 import { ThemeToggle } from "./theme-toggle";
 import { LanguageSwitcher } from "./language-switcher";
 import { Button } from "./ui";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { cn, initials } from "@/lib/utils";
 
 export function Navbar() {
@@ -34,21 +43,29 @@ export function Navbar() {
       onClick={() => setOpen(false)}
       className={cn(
         "rounded-[var(--radius-md)] px-3 py-2 text-sm font-medium transition",
-        pathname === href ? "bg-secondary text-secondary-foreground" : "text-muted-foreground hover:text-foreground hover:bg-muted",
+        pathname === href
+          ? "bg-secondary text-secondary-foreground"
+          : "text-muted-foreground hover:text-foreground hover:bg-muted",
       )}
     >
       {label}
     </Link>
   );
 
+  function doLogout() {
+    logout();
+    router.push("/");
+    setOpen(false);
+  }
+
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur">
+    <header className="sticky top-0 z-40 border-b border-border glass">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 px-4">
         <Link href="/" className="flex items-center gap-2 font-bold">
-          <span className="grid h-9 w-9 place-items-center rounded-[var(--radius-md)] bg-primary text-primary-foreground">
+          <span className="grid h-9 w-9 place-items-center rounded-[var(--radius-md)] text-primary-foreground [background:linear-gradient(135deg,var(--primary),var(--violet))] shadow-sm shadow-primary/30">
             <GraduationCap className="h-5 w-5" />
           </span>
-          <span className="text-lg">Mentoria<span className="gradient-text"> Hub</span></span>
+          <span className="text-lg tracking-tight">Mentoria<span className="gradient-text"> Hub</span></span>
         </Link>
 
         <nav className="hidden items-center gap-1 md:flex">
@@ -61,18 +78,39 @@ export function Navbar() {
           <LanguageSwitcher />
           <ThemeToggle />
           {hydrated && user ? (
-            <div className="flex items-center gap-2">
-              <Link
-                href="/dashboard"
-                className="grid h-9 w-9 place-items-center rounded-full bg-secondary text-sm font-semibold text-secondary-foreground"
-                title={user.name}
-              >
-                {initials(user.name)}
-              </Link>
-              <Button variant="ghost" size="sm" onClick={() => { logout(); router.push("/"); }}>
-                {t("nav.logout")}
-              </Button>
-            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button aria-label="Account menu" className="rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                  <Avatar className="h-9 w-9 border border-border">
+                    <AvatarFallback className="bg-secondary text-sm font-semibold text-secondary-foreground">
+                      {initials(user.name)}
+                    </AvatarFallback>
+                  </Avatar>
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="min-w-52">
+                <DropdownMenuLabel>
+                  <p className="font-semibold">{user.name}</p>
+                  <p className="text-xs font-normal text-muted-foreground">{user.email}</p>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => router.push("/dashboard")}>
+                  <LayoutDashboard className="h-4 w-4" /> {t("nav.dashboard")}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => router.push("/roadmap")}>
+                  <Map className="h-4 w-4" /> {t("nav.roadmap")}
+                </DropdownMenuItem>
+                {user.role === "admin" && (
+                  <DropdownMenuItem onClick={() => router.push("/admin")}>
+                    <Shield className="h-4 w-4" /> {t("nav.admin")}
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={doLogout} variant="destructive">
+                  <LogOut className="h-4 w-4" /> {t("nav.logout")}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           ) : hydrated ? (
             <div className="flex items-center gap-2">
               <Link href="/login"><Button variant="ghost" size="sm">{t("nav.login")}</Button></Link>
@@ -105,8 +143,8 @@ export function Navbar() {
           </div>
           <div className="mt-3 flex gap-2">
             {hydrated && user ? (
-              <Button variant="outline" size="sm" className="flex-1" onClick={() => { logout(); router.push("/"); setOpen(false); }}>
-                {t("nav.logout")}
+              <Button variant="outline" size="sm" className="flex-1" onClick={doLogout}>
+                <LogOut className="h-4 w-4" /> {t("nav.logout")}
               </Button>
             ) : (
               <>
