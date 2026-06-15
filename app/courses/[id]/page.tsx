@@ -7,6 +7,7 @@ import { ArrowLeft, CheckCircle2, Circle, Clock, PlayCircle } from "lucide-react
 import { useStore } from "@/lib/store";
 import { useT } from "@/lib/i18n";
 import { Badge, Button, Card, Progress } from "@/components/ui";
+import { CoverImage } from "@/components/cover-image";
 import type { LessonProgress } from "@/lib/types";
 
 const EMPTY_PROGRESS: Record<string, LessonProgress> = {};
@@ -51,6 +52,17 @@ export default function CourseDetailPage() {
       <Link href="/courses" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
         <ArrowLeft className="h-4 w-4" /> {t("courses.title")}
       </Link>
+
+      <div className="relative mt-4 overflow-hidden rounded-[var(--radius-xl)] border border-border">
+        <CoverImage
+          id={course.id}
+          alt={course.title}
+          emoji={course.emoji}
+          className="aspect-[21/9] w-full"
+          sizes="(max-width: 896px) 100vw, 896px"
+          priority
+        />
+      </div>
 
       <Card className="mt-4 p-7">
         <div className="flex items-start gap-4">

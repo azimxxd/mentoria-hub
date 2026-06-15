@@ -7,7 +7,12 @@ import { ArrowLeft, Bookmark, BookmarkCheck, CalendarClock, ExternalLink } from 
 import { useStore } from "@/lib/store";
 import { useI18n, useT } from "@/lib/i18n";
 import { Badge, Button, Card } from "@/components/ui";
+import { CoverImage } from "@/components/cover-image";
 import { deadlineLabel, formatDate } from "@/lib/utils";
+
+const DIRECTION_EMOJI: Record<string, string> = {
+  Business: "💼", STEM: "🔬", "Social Impact": "🌍", Finance: "💹", Coding: "💻", Science: "🧬",
+};
 
 export default function OpportunityDetailPage() {
   const t = useT();
@@ -45,6 +50,17 @@ export default function OpportunityDetailPage() {
       <Link href="/opportunities" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
         <ArrowLeft className="h-4 w-4" /> {t("opps.title")}
       </Link>
+
+      <div className="relative mt-4 overflow-hidden rounded-[var(--radius-xl)] border border-border">
+        <CoverImage
+          id={opp.id}
+          alt={opp.title}
+          emoji={DIRECTION_EMOJI[opp.direction] ?? "✨"}
+          className="aspect-[21/9] w-full"
+          sizes="(max-width: 768px) 100vw, 768px"
+          priority
+        />
+      </div>
 
       <Card className="mt-4 p-7">
         <div className="flex flex-wrap items-center gap-2">
