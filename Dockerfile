@@ -1,5 +1,6 @@
 # Image for the Telegram reminder bot (a long-running worker, not the web app).
-FROM node:20-slim
+# Node 22+ is required: @supabase/supabase-js needs a global WebSocket (absent in Node 20).
+FROM node:24-slim
 
 WORKDIR /app
 
