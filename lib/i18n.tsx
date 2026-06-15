@@ -114,6 +114,14 @@ const en: Dict = {
   "calendar.join": "Join lesson",
   "calendar.noSessions": "No sessions scheduled this month.",
 
+  "tg.title": "Telegram reminders",
+  "tg.hint": "Connect Telegram to get a ping ~30 min before the live lessons of courses you're enrolled in.",
+  "tg.connect": "Connect Telegram",
+  "tg.connected": "Telegram connected",
+  "tg.connectedHint": "You'll get reminders for your enrolled courses.",
+  "tg.disconnect": "Disconnect",
+  "tg.recheck": "Refresh status",
+
   "auth.loginTitle": "Welcome back",
   "auth.signupTitle": "Create your account",
   "auth.name": "Full name",
@@ -306,6 +314,14 @@ const ru: Dict = {
   "calendar.join": "Подключиться",
   "calendar.noSessions": "В этом месяце занятий нет.",
 
+  "tg.title": "Напоминания в Telegram",
+  "tg.hint": "Подключи Telegram — будет напоминание за ~30 минут до онлайн-уроков курсов, на которые ты записан.",
+  "tg.connect": "Подключить Telegram",
+  "tg.connected": "Telegram подключён",
+  "tg.connectedHint": "Будешь получать напоминания по своим курсам.",
+  "tg.disconnect": "Отключить",
+  "tg.recheck": "Обновить статус",
+
   "auth.loginTitle": "С возвращением",
   "auth.signupTitle": "Создайте аккаунт",
   "auth.name": "Имя и фамилия",
@@ -497,6 +513,14 @@ const kk: Dict = {
   "calendar.upcoming": "Жақын сабақтар",
   "calendar.join": "Қосылу",
   "calendar.noSessions": "Бұл айда сабақтар жоспарланбаған.",
+
+  "tg.title": "Telegram еске салулар",
+  "tg.hint": "Telegram-ды қос — өзің тіркелген курстардың онлайн сабақтарынан ~30 минут бұрын ескерту келеді.",
+  "tg.connect": "Telegram қосу",
+  "tg.connected": "Telegram қосылды",
+  "tg.connectedHint": "Тіркелген курстарың бойынша ескертулер аласың.",
+  "tg.disconnect": "Ажырату",
+  "tg.recheck": "Күйді жаңарту",
 
   "auth.loginTitle": "Қайта келдіңіз",
   "auth.signupTitle": "Аккаунт жасаңыз",

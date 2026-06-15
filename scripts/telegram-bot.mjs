@@ -170,6 +170,56 @@ async function removeSub(chatId) {
   else saveSubsFile();
 }
 
+// ---- account linking (personalized reminders) ----
+async function linkAccount(token, chatId) {
+  try {
+    // Detach this chat from any previous account first (chat_id is unique).
+    await supabase.from("telegram_links").update({ chat_id: null, linked: false }).eq("chat_id", chatId);
+    const { data, error } = await supabase
+      .from("telegram_links")
+      .update({ chat_id: chatId, linked: true })
+      .eq("link_token", token)
+      .select("user_id");
+    if (error) throw error;
+    return Boolean(data && data.length);
+  } catch (err) {
+    console.error("link account failed:", err.message);
+    return false;
+  }
+}
+
+async function getLinkedUsers() {
+  if (!hasServiceRole) return [];
+  try {
+    const { data, error } = await supabase
+      .from("telegram_links")
+      .select("user_id, chat_id")
+      .eq("linked", true)
+      .not("chat_id", "is", null);
+    if (error) throw error;
+    return data.map((r) => ({ userId: r.user_id, chatId: Number(r.chat_id) }));
+  } catch (err) {
+    console.error("load linked users failed:", err.message);
+    return [];
+  }
+}
+
+async function getEnrollmentsByUser(userIds) {
+  const map = new Map();
+  if (!hasServiceRole || userIds.length === 0) return map;
+  try {
+    const { data, error } = await supabase.from("enrollments").select("user_id, course_id").in("user_id", userIds);
+    if (error) throw error;
+    for (const r of data) {
+      if (!map.has(r.user_id)) map.set(r.user_id, new Set());
+      map.get(r.user_id).add(r.course_id);
+    }
+  } catch (err) {
+    console.error("load enrollments failed:", err.message);
+  }
+  return map;
+}
+
 // ---- Telegram API ----
 async function tg(method, body) {
   try {
@@ -215,10 +265,23 @@ async function handleUpdate(u) {
   const cmd = msg.text.trim().split(/\s+/)[0].replace(/@.*$/, "").toLowerCase();
 
   switch (cmd) {
-    case "/start":
+    case "/start": {
+      const payload = msg.text.trim().split(/\s+/)[1]; // deep-link token after /start
+      if (payload && hasServiceRole) {
+        const ok = await linkAccount(payload, chatId);
+        if (ok) {
+          await send(
+            chatId,
+            "✅ Linked to your Mentoria account! You'll get reminders for the courses you're enrolled in.",
+          );
+          break;
+        }
+        await send(chatId, "⚠️ That link is invalid or expired. Open the website → Connect Telegram for a fresh link.");
+      }
       await addSub(chatId);
       await send(chatId, `Welcome! 🎉 You're subscribed to live-lesson reminders.\n\n${HELP}`);
       break;
+    }
     case "/subscribe":
       await addSub(chatId);
       await send(chatId, "✅ Subscribed. I'll remind you ~30 minutes before each live lesson.");
@@ -255,22 +318,45 @@ async function handleUpdate(u) {
 // ---- reminder loop ----
 const reminded = new Set();
 
+function reminderText(s, when, minutes) {
+  return (
+    `⏰ <b>Live lesson in ${Math.round(minutes)} minutes — don't forget!</b>\n\n` +
+    `${s.emoji} <b>${s.title}</b>\n${s.courseTitle}\n🕒 ${fmt(when)}\n🔗 ${s.meetingUrl}`
+  );
+}
+
+async function sendOnce(chatId, d) {
+  const key = `${chatId}:${d.s.courseId}:${d.when.getTime()}`;
+  if (reminded.has(key)) return;
+  reminded.add(key);
+  await send(chatId, reminderText(d.s, d.when, d.minutes));
+}
+
 async function checkReminders() {
-  if (subs.size === 0) return;
   const now = new Date();
+  const due = [];
   for (const s of sessions) {
     const when = nextOccurrence(s, now);
     const minutes = (when.getTime() - now.getTime()) / 60000;
-    const key = `${s.courseId}:${when.getTime()}`;
-    if (minutes <= REMINDER_MINUTES && minutes > 0 && !reminded.has(key)) {
-      reminded.add(key);
-      const text =
-        `⏰ <b>Live lesson in ${Math.round(minutes)} minutes — don't forget!</b>\n\n` +
-        `${s.emoji} <b>${s.title}</b>\n${s.courseTitle}\n🕒 ${fmt(when)}\n🔗 ${s.meetingUrl}`;
-      for (const chatId of subs) await send(chatId, text);
-      console.log(`Sent reminder for ${s.title} to ${subs.size} subscriber(s).`);
-    }
+    if (minutes <= REMINDER_MINUTES && minutes > 0) due.push({ s, when, minutes });
   }
+  if (due.length === 0) return;
+
+  // Personalized: linked accounts get reminders only for their enrolled courses.
+  const linked = await getLinkedUsers();
+  const linkedChatIds = new Set(linked.map((l) => l.chatId));
+  const enrollments = await getEnrollmentsByUser(linked.map((l) => l.userId));
+  for (const u of linked) {
+    const courseIds = enrollments.get(u.userId) ?? new Set();
+    for (const d of due) if (courseIds.has(d.s.courseId)) await sendOnce(u.chatId, d);
+  }
+
+  // Broadcast subscribers — skip chats already linked to avoid duplicate pings.
+  for (const chatId of subs) {
+    if (linkedChatIds.has(chatId)) continue;
+    for (const d of due) await sendOnce(chatId, d);
+  }
+
   for (const key of reminded) {
     if (Number(key.split(":").pop()) < now.getTime()) reminded.delete(key);
   }

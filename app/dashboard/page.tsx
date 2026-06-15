@@ -9,6 +9,7 @@ import { useI18n, useT } from "@/lib/i18n";
 import { Badge, Button, Card, Progress } from "@/components/ui";
 import { OpportunityCard } from "@/components/opportunity-card";
 import { CertificateModal } from "@/components/certificate-modal";
+import { TelegramConnect } from "@/components/telegram-connect";
 import { recommendCourses, recommendOpportunities } from "@/lib/recommend";
 import { daysUntil, formatDate } from "@/lib/utils";
 import type { Certificate, User } from "@/lib/types";
@@ -208,6 +209,8 @@ function Dashboard({ user }: { user: User }) {
               </div>
             )}
           </section>
+
+          <TelegramConnect />
         </div>
       </div>
 

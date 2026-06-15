@@ -110,6 +110,17 @@ create table if not exists telegram_subscribers (
   created_at timestamptz not null default now()
 );
 
+-- Links a Mentoria account to a Telegram chat for personalized reminders.
+-- The website (anon, RLS) creates the row + token; the bot (service role) sets
+-- chat_id/linked when the user opens the deep link.
+create table if not exists telegram_links (
+  user_id uuid primary key references auth.users(id) on delete cascade,
+  chat_id bigint unique,
+  link_token text unique,
+  linked boolean not null default false,
+  created_at timestamptz not null default now()
+);
+
 -- ----- Row Level Security -----
 alter table profiles enable row level security;
 alter table opportunities enable row level security;
@@ -122,6 +133,7 @@ alter table certificates enable row level security;
 alter table roadmap_tasks enable row level security;
 -- telegram_subscribers: RLS on with NO policies → only the service role (the bot) can touch it.
 alter table telegram_subscribers enable row level security;
+alter table telegram_links enable row level security;
 
 -- Public catalog: anyone authenticated can read opportunities/courses/lessons.
 create policy "read opportunities" on opportunities for select using (true);
@@ -147,6 +159,8 @@ create policy "own enrollments" on enrollments for all using (auth.uid() = user_
 create policy "own progress" on lesson_progress for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
 create policy "own certificates" on certificates for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
 create policy "own roadmap" on roadmap_tasks for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+-- Users manage their own Telegram link row; the bot uses the service role (bypasses RLS).
+create policy "own telegram link" on telegram_links for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
 -- ----- Auto-create a profile row whenever a new auth user signs up -----
 create or replace function handle_new_user() returns trigger language plpgsql security definer set search_path = public as $$
