@@ -16,6 +16,7 @@ export function CoverImage({
   className,
   sizes = "(max-width: 768px) 100vw, 33vw",
   priority = false,
+  src,
 }: {
   id: string;
   alt: string;
@@ -23,20 +24,31 @@ export function CoverImage({
   className?: string;
   sizes?: string;
   priority?: boolean;
+  /** Explicit image (admin-uploaded data URL or external URL). Overrides /covers/<id>.png. */
+  src?: string;
 }) {
   const [error, setError] = useState(false);
 
+  // Admin-uploaded data URLs can't go through the Next/Image optimizer, so render
+  // them with a plain <img>. Bundled covers still use the optimized <Image>.
+  const isDataUrl = !!src && src.startsWith("data:");
+  const resolvedSrc = src || `/covers/${id}.png`;
+
   return (
     <div className={cn("relative overflow-hidden bg-muted", className)}>
-      {!error ? (
+      {!error && isDataUrl ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={resolvedSrc} alt={alt} className="absolute inset-0 h-full w-full object-cover" onError={() => setError(true)} />
+      ) : !error ? (
         <Image
-          src={`/covers/${id}.png`}
+          src={resolvedSrc}
           alt={alt}
           fill
           sizes={sizes}
           priority={priority}
           className="object-cover"
           onError={() => setError(true)}
+          unoptimized={!!src}
         />
       ) : (
         <div className="flex h-full w-full items-center justify-center [background:linear-gradient(135deg,var(--primary),var(--violet))]">

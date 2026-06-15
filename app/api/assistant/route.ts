@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server";
-import Anthropic from "@anthropic-ai/sdk";
 
 export const runtime = "nodejs";
+
+// Hugging Face Inference router — OpenAI-compatible chat completions endpoint.
+// Free to use with a HF access token (https://huggingface.co/settings/tokens).
+const HF_ENDPOINT = "https://router.huggingface.co/v1/chat/completions";
+const DEFAULT_MODEL = "meta-llama/Llama-3.1-8B-Instruct:novita";
 
 interface CatalogOpp {
   title: string;
@@ -91,13 +95,12 @@ export async function POST(req: Request) {
     return NextResponse.json({ reply: "Invalid request." }, { status: 400 });
   }
 
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const apiKey = process.env.HF_TOKEN || process.env.HUGGINGFACE_API_KEY;
   if (!apiKey) {
     return NextResponse.json({ reply: fallbackReply(body), source: "fallback" });
   }
 
   try {
-    const anthropic = new Anthropic({ apiKey });
     const profile = body.profile
       ? `Student profile — grade: ${body.profile.grade ?? "unknown"}, interests: ${(body.profile.interests ?? []).join(", ") || "none"}, subjects: ${(body.profile.subjects ?? []).join(", ") || "none"}, goals: ${(body.profile.goals ?? []).join(", ") || "none"}.`
       : "The student has not completed onboarding yet.";
@@ -112,20 +115,36 @@ export async function POST(req: Request) {
 
     const system = `You are the Mentoria Hub AI guide for school students (grades 8-11). Recommend educational opportunities (competitions, scholarships, internships, summer schools) and Mentoria courses ONLY from the catalog provided. Be warm, concise (under 120 words), and specific: name 2-4 items and say why each fits. If the profile is incomplete, ask one short clarifying question. Never invent items not in the catalog.\n\n${profile}\n\nCATALOG:\n${catalog}`;
 
-    const msg = await anthropic.messages.create({
-      model: "claude-haiku-4-5",
-      max_tokens: 500,
-      system,
-      messages: body.messages.map((m) => ({ role: m.role, content: m.content })),
+    const model = process.env.HF_MODEL || DEFAULT_MODEL;
+    const res = await fetch(HF_ENDPOINT, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model,
+        max_tokens: 500,
+        temperature: 0.6,
+        messages: [
+          { role: "system", content: system },
+          ...body.messages.map((m) => ({ role: m.role, content: m.content })),
+        ],
+      }),
     });
 
-    const reply = msg.content
-      .filter((b): b is Anthropic.TextBlock => b.type === "text")
-      .map((b) => b.text)
-      .join("\n")
-      .trim();
+    if (!res.ok) {
+      const detail = await res.text().catch(() => "");
+      console.error("HF assistant error", res.status, detail.slice(0, 300));
+      return NextResponse.json({ reply: fallbackReply(body), source: "fallback-error" });
+    }
 
-    return NextResponse.json({ reply: reply || fallbackReply(body), source: "claude" });
+    const data = (await res.json()) as {
+      choices?: { message?: { content?: string } }[];
+    };
+    const reply = data.choices?.[0]?.message?.content?.trim() ?? "";
+
+    return NextResponse.json({ reply: reply || fallbackReply(body), source: "huggingface" });
   } catch (err) {
     console.error("assistant error", err);
     return NextResponse.json({ reply: fallbackReply(body), source: "fallback-error" });

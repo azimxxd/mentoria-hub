@@ -13,11 +13,16 @@ import type {
 } from "./types";
 import { SEED_COURSES, SEED_OPPORTUNITIES, SEED_USERS } from "./seed-data";
 import { uid } from "./utils";
+import { getSupabase, isSupabaseConfigured } from "./supabase";
+import * as db from "./supabase-data";
 
 type Result = { ok: true } | { ok: false; error: string };
+type SyncMode = "local" | "supabase";
 
 interface StoreState {
   _hasHydrated: boolean;
+  _initStarted: boolean;
+  syncMode: SyncMode;
   users: User[];
   currentUserId: string | null;
   opportunities: Opportunity[];
@@ -28,12 +33,16 @@ interface StoreState {
   certificates: Record<string, Certificate[]>;
   roadmaps: Record<string, RoadmapTask[]>;
 
+  // lifecycle
+  init: () => Promise<void>;
+  _loadUser: (userId: string, email: string) => Promise<void>;
+
   // auth
-  signup: (email: string, password: string, name: string) => Result;
-  login: (email: string, password: string) => Result;
-  logout: () => void;
+  signup: (email: string, password: string, name: string) => Promise<Result>;
+  login: (email: string, password: string) => Promise<Result>;
+  logout: () => Promise<void>;
   currentUser: () => User | null;
-  updateProfile: (patch: Partial<User>) => void;
+  updateProfile: (patch: Partial<User>) => Promise<void>;
 
   // opportunities
   toggleSave: (opportunityId: string) => void;
@@ -74,10 +83,14 @@ const DEFAULT_ROADMAP: Omit<RoadmapTask, "id" | "done">[] = [
   { grade: 12, text: "Prepare application essays" },
 ];
 
+const sb = () => getSupabase()!; // only called when syncMode === "supabase"
+
 export const useStore = create<StoreState>()(
   persist(
     (set, get) => ({
       _hasHydrated: false,
+      _initStarted: false,
+      syncMode: "local",
       users: SEED_USERS,
       currentUserId: null,
       opportunities: SEED_OPPORTUNITIES,
@@ -88,9 +101,103 @@ export const useStore = create<StoreState>()(
       certificates: {},
       roadmaps: {},
 
-      signup: (email, password, name) => {
+      /* --------------------------- lifecycle --------------------------- */
+      init: async () => {
+        if (get()._initStarted) return;
+        set({ _initStarted: true });
+
+        if (!isSupabaseConfigured) {
+          set({ syncMode: "local", _hasHydrated: true });
+          return;
+        }
+
+        // Supabase mode: catalog + auth come from the database.
+        set({
+          syncMode: "supabase",
+          users: [],
+          currentUserId: null,
+          saved: {},
+          enrollments: {},
+          progress: {},
+          certificates: {},
+          roadmaps: {},
+        });
+
+        try {
+          const { opportunities, courses } = await db.loadCatalog(sb());
+          set({ opportunities, courses });
+
+          const {
+            data: { session },
+          } = await sb().auth.getSession();
+          if (session) await get()._loadUser(session.user.id, session.user.email ?? "");
+
+          sb().auth.onAuthStateChange((_event, sess) => {
+            if (sess) {
+              void get()._loadUser(sess.user.id, sess.user.email ?? "");
+            } else {
+              set({ currentUserId: null, users: [] });
+            }
+          });
+        } catch (err) {
+          console.error("Supabase init failed:", err);
+        } finally {
+          set({ _hasHydrated: true });
+        }
+      },
+
+      _loadUser: async (userId, email) => {
+        const data = await db.loadUserData(sb(), userId, email);
+        if (!data) return;
+
+        // Build certificates from rows using the catalog + profile name.
+        const certificates: Certificate[] = data.certificateRows.map((c) => ({
+          id: c.id,
+          courseId: c.courseId,
+          courseTitle: get().courses.find((x) => x.id === c.courseId)?.title ?? "Course",
+          userName: data.user.name,
+          code: c.code,
+          issuedAt: c.issuedAt,
+        }));
+
+        let users: User[] = [data.user];
+        if (data.user.role === "admin") {
+          try {
+            users = await db.loadAllProfiles(sb());
+            if (!users.some((u) => u.id === userId)) users = [data.user, ...users];
+          } catch {
+            /* fall back to just the current user */
+          }
+        }
+
+        set({
+          currentUserId: userId,
+          users,
+          saved: { [userId]: data.savedIds },
+          enrollments: { [userId]: data.enrollments },
+          progress: { [userId]: data.progress },
+          certificates: { [userId]: certificates },
+          roadmaps: { [userId]: data.roadmap },
+        });
+      },
+
+      /* --------------------------- auth --------------------------- */
+      signup: async (email, password, name) => {
         email = email.trim().toLowerCase();
         if (!email || !password || !name) return { ok: false, error: "All fields are required." };
+
+        if (get().syncMode === "supabase") {
+          const { data, error } = await sb().auth.signUp({
+            email,
+            password,
+            options: { data: { full_name: name.trim() } },
+          });
+          if (error) return { ok: false, error: error.message };
+          if (data.session) await get()._loadUser(data.session.user.id, email);
+          return { ok: true };
+        }
+
+        // local mode
         if (get().users.some((u) => u.email === email))
           return { ok: false, error: "An account with this email already exists." };
         const user: User = {
@@ -109,8 +216,16 @@ export const useStore = create<StoreState>()(
         return { ok: true };
       },
 
-      login: (email, password) => {
+      login: async (email, password) => {
         email = email.trim().toLowerCase();
+
+        if (get().syncMode === "supabase") {
+          const { data, error } = await sb().auth.signInWithPassword({ email, password });
+          if (error) return { ok: false, error: error.message };
+          await get()._loadUser(data.user.id, data.user.email ?? email);
+          return { ok: true };
+        }
+
         const user = get().users.find((u) => u.email === email);
         if (!user || user.password !== password)
           return { ok: false, error: "Incorrect email or password." };
@@ -118,31 +233,47 @@ export const useStore = create<StoreState>()(
         return { ok: true };
       },
 
-      logout: () => set({ currentUserId: null }),
+      logout: async () => {
+        if (get().syncMode === "supabase") {
+          try {
+            await sb().auth.signOut();
+          } catch (err) {
+            console.error("signOut failed:", err);
+          }
+        }
+        set({ currentUserId: null });
+      },
 
       currentUser: () => {
         const { users, currentUserId } = get();
         return users.find((u) => u.id === currentUserId) ?? null;
       },
 
-      updateProfile: (patch) => {
+      updateProfile: async (patch) => {
         const id = get().currentUserId;
         if (!id) return;
-        set((s) => ({
-          users: s.users.map((u) => (u.id === id ? { ...u, ...patch } : u)),
-        }));
+        set((s) => ({ users: s.users.map((u) => (u.id === id ? { ...u, ...patch } : u)) }));
+        if (get().syncMode === "supabase") {
+          const { error } = await db.dbUpdateProfile(sb(), id, patch);
+          if (error) console.error("updateProfile failed:", error.message);
+        }
       },
 
+      /* --------------------------- opportunities --------------------------- */
       toggleSave: (opportunityId) => {
         const id = get().currentUserId;
         if (!id) return;
-        set((s) => {
-          const list = s.saved[id] ?? [];
-          const next = list.includes(opportunityId)
-            ? list.filter((x) => x !== opportunityId)
-            : [...list, opportunityId];
-          return { saved: { ...s.saved, [id]: next } };
-        });
+        const list = get().saved[id] ?? [];
+        const has = list.includes(opportunityId);
+        set((s) => ({
+          saved: {
+            ...s.saved,
+            [id]: has ? list.filter((x) => x !== opportunityId) : [...list, opportunityId],
+          },
+        }));
+        if (get().syncMode === "supabase") {
+          void (has ? db.dbUnsave(sb(), id, opportunityId) : db.dbSave(sb(), id, opportunityId));
+        }
       },
 
       isSaved: (opportunityId) => {
@@ -158,19 +289,19 @@ export const useStore = create<StoreState>()(
         return get().opportunities.filter((o) => ids.includes(o.id));
       },
 
+      /* --------------------------- courses --------------------------- */
       enroll: (courseId) => {
         const id = get().currentUserId;
         if (!id) return;
-        set((s) => {
-          const list = s.enrollments[id] ?? [];
-          if (list.some((e) => e.courseId === courseId)) return s;
-          return {
-            enrollments: {
-              ...s.enrollments,
-              [id]: [...list, { courseId, enrolledAt: new Date().toISOString() }],
-            },
-          };
-        });
+        const list = get().enrollments[id] ?? [];
+        if (list.some((e) => e.courseId === courseId)) return;
+        set((s) => ({
+          enrollments: {
+            ...s.enrollments,
+            [id]: [...list, { courseId, enrolledAt: new Date().toISOString() }],
+          },
+        }));
+        if (get().syncMode === "supabase") void db.dbEnroll(sb(), id, courseId);
       },
 
       isEnrolled: (courseId) => {
@@ -182,39 +313,51 @@ export const useStore = create<StoreState>()(
       completeLesson: (courseId, lessonId, quizScore) => {
         const id = get().currentUserId;
         if (!id) return;
-        // ensure enrollment
         get().enroll(courseId);
+
         set((s) => {
           const userProgress = { ...(s.progress[id] ?? {}) };
-          userProgress[lessonId] = {
-            completed: true,
-            quizScore,
-            completedAt: new Date().toISOString(),
-          };
+          userProgress[lessonId] = { completed: true, quizScore, completedAt: new Date().toISOString() };
           return { progress: { ...s.progress, [id]: userProgress } };
         });
+        if (get().syncMode === "supabase") void db.dbCompleteLesson(sb(), id, lessonId, quizScore);
 
-        // issue certificate if course fully complete
+        // Issue a certificate once every lesson in the course is complete.
         const course = get().courses.find((c) => c.id === courseId);
         if (!course) return;
         const up = get().progress[id] ?? {};
-        const allDone = course.lessons.every((l) => up[l.id]?.completed);
-        if (allDone) {
-          const existing = get().certificates[id] ?? [];
-          if (!existing.some((c) => c.courseId === courseId)) {
-            const user = get().currentUser();
+        const allDone = course.lessons.length > 0 && course.lessons.every((l) => up[l.id]?.completed);
+        if (!allDone) return;
+
+        const existing = get().certificates[id] ?? [];
+        if (existing.some((c) => c.courseId === courseId)) return;
+
+        const user = get().currentUser();
+        const code = `MH-${course.id.slice(-4).toUpperCase()}-${uid("").slice(-5).toUpperCase()}`;
+
+        if (get().syncMode === "supabase") {
+          void db.dbInsertCertificate(sb(), id, courseId, code).then((res) => {
+            if (!res) return;
             const cert: Certificate = {
-              id: uid("cert"),
+              id: res.id,
               courseId,
               courseTitle: course.title,
               userName: user?.name ?? "Student",
-              code: `MH-${course.id.slice(-4).toUpperCase()}-${uid("").slice(-5).toUpperCase()}`,
-              issuedAt: new Date().toISOString(),
+              code,
+              issuedAt: res.issuedAt,
             };
-            set((s) => ({
-              certificates: { ...s.certificates, [id]: [...existing, cert] },
-            }));
-          }
+            set((s) => ({ certificates: { ...s.certificates, [id]: [...(s.certificates[id] ?? []), cert] } }));
+          });
+        } else {
+          const cert: Certificate = {
+            id: uid("cert"),
+            courseId,
+            courseTitle: course.title,
+            userName: user?.name ?? "Student",
+            code,
+            issuedAt: new Date().toISOString(),
+          };
+          set((s) => ({ certificates: { ...s.certificates, [id]: [...existing, cert] } }));
         }
       },
 
@@ -246,47 +389,69 @@ export const useStore = create<StoreState>()(
         return get().certificates[id] ?? [];
       },
 
-      // Pure read — does not mutate. Call ensureRoadmap() (e.g. in an effect)
-      // to seed the default plan for a new user.
+      /* --------------------------- roadmap --------------------------- */
       roadmap: () => {
         const id = get().currentUserId;
         if (!id) return [];
         return get().roadmaps[id] ?? [];
       },
 
+      // Seeds the default plan for a new user. In Supabase mode the seeded tasks
+      // are also persisted so they survive across devices.
       ensureRoadmap: () => {
         const id = get().currentUserId;
         if (!id || get().roadmaps[id]) return;
-        const seeded: RoadmapTask[] = DEFAULT_ROADMAP.map((t) => ({
-          ...t,
-          id: uid("rt"),
-          done: false,
-        }));
+        const seeded: RoadmapTask[] = DEFAULT_ROADMAP.map((t) => ({ ...t, id: uid("rt"), done: false }));
         set((s) => ({ roadmaps: { ...s.roadmaps, [id]: seeded } }));
+        if (get().syncMode === "supabase") {
+          void (async () => {
+            const withIds = await Promise.all(
+              DEFAULT_ROADMAP.map(async (t, i) => {
+                const realId = await db.dbAddRoadmap(sb(), id, t.grade, t.text);
+                return { ...seeded[i], id: realId ?? seeded[i].id };
+              }),
+            );
+            set((s) => ({ roadmaps: { ...s.roadmaps, [id]: withIds } }));
+          })();
+        }
       },
 
       addRoadmapTask: (grade, text) => {
         const id = get().currentUserId;
         if (!id || !text.trim()) return;
-        const list = get().roadmaps[id] ?? [];
+        const tempId = uid("rt");
         set((s) => ({
           roadmaps: {
             ...s.roadmaps,
-            [id]: [...list, { id: uid("rt"), grade, text: text.trim(), done: false }],
+            [id]: [...(s.roadmaps[id] ?? []), { id: tempId, grade, text: text.trim(), done: false }],
           },
         }));
+        if (get().syncMode === "supabase") {
+          void db.dbAddRoadmap(sb(), id, grade, text.trim()).then((realId) => {
+            if (!realId) return;
+            set((s) => ({
+              roadmaps: {
+                ...s.roadmaps,
+                [id]: (s.roadmaps[id] ?? []).map((t) => (t.id === tempId ? { ...t, id: realId } : t)),
+              },
+            }));
+          });
+        }
       },
 
       toggleRoadmapTask: (taskId) => {
         const id = get().currentUserId;
         if (!id) return;
         const list = get().roadmaps[id] ?? [];
+        const task = list.find((t) => t.id === taskId);
+        const nextDone = !task?.done;
         set((s) => ({
           roadmaps: {
             ...s.roadmaps,
-            [id]: list.map((t) => (t.id === taskId ? { ...t, done: !t.done } : t)),
+            [id]: list.map((t) => (t.id === taskId ? { ...t, done: nextDone } : t)),
           },
         }));
+        if (get().syncMode === "supabase" && db.isUuid(taskId)) void db.dbToggleRoadmap(sb(), taskId, nextDone);
       },
 
       deleteRoadmapTask: (taskId) => {
@@ -294,9 +459,25 @@ export const useStore = create<StoreState>()(
         if (!id) return;
         const list = get().roadmaps[id] ?? [];
         set((s) => ({ roadmaps: { ...s.roadmaps, [id]: list.filter((t) => t.id !== taskId) } }));
+        if (get().syncMode === "supabase" && db.isUuid(taskId)) void db.dbDeleteRoadmap(sb(), taskId);
       },
 
-      saveOpportunity: (o) =>
+      /* --------------------------- admin --------------------------- */
+      saveOpportunity: (o) => {
+        if (get().syncMode === "supabase") {
+          void db.dbUpsertOpportunity(sb(), o).then((saved) => {
+            if (!saved) return;
+            set((s) => {
+              const exists = s.opportunities.some((x) => x.id === saved.id);
+              return {
+                opportunities: exists
+                  ? s.opportunities.map((x) => (x.id === saved.id ? saved : x))
+                  : [saved, ...s.opportunities.filter((x) => x.id !== o.id)],
+              };
+            });
+          });
+          return;
+        }
         set((s) => {
           const exists = s.opportunities.some((x) => x.id === o.id);
           return {
@@ -304,12 +485,29 @@ export const useStore = create<StoreState>()(
               ? s.opportunities.map((x) => (x.id === o.id ? o : x))
               : [{ ...o, id: o.id || uid("opp") }, ...s.opportunities],
           };
-        }),
+        });
+      },
 
-      deleteOpportunity: (id) =>
-        set((s) => ({ opportunities: s.opportunities.filter((x) => x.id !== id) })),
+      deleteOpportunity: (id) => {
+        set((s) => ({ opportunities: s.opportunities.filter((x) => x.id !== id) }));
+        if (get().syncMode === "supabase") void db.dbDeleteOpportunity(sb(), id);
+      },
 
-      saveCourse: (c) =>
+      saveCourse: (c) => {
+        if (get().syncMode === "supabase") {
+          void db.dbUpsertCourse(sb(), c).then((saved) => {
+            if (!saved) return;
+            set((s) => {
+              const exists = s.courses.some((x) => x.id === saved.id);
+              return {
+                courses: exists
+                  ? s.courses.map((x) => (x.id === saved.id ? saved : x))
+                  : [saved, ...s.courses.filter((x) => x.id !== c.id)],
+              };
+            });
+          });
+          return;
+        }
         set((s) => {
           const exists = s.courses.some((x) => x.id === c.id);
           return {
@@ -317,9 +515,13 @@ export const useStore = create<StoreState>()(
               ? s.courses.map((x) => (x.id === c.id ? c : x))
               : [{ ...c, id: c.id || uid("course") }, ...s.courses],
           };
-        }),
+        });
+      },
 
-      deleteCourse: (id) => set((s) => ({ courses: s.courses.filter((x) => x.id !== id) })),
+      deleteCourse: (id) => {
+        set((s) => ({ courses: s.courses.filter((x) => x.id !== id) }));
+        if (get().syncMode === "supabase") void db.dbDeleteCourse(sb(), id);
+      },
     }),
     {
       name: "mentoria-hub-v1",
@@ -327,17 +529,22 @@ export const useStore = create<StoreState>()(
       onRehydrateStorage: () => (state) => {
         if (state) state._hasHydrated = true;
       },
-      partialize: (s) => ({
-        users: s.users,
-        currentUserId: s.currentUserId,
-        opportunities: s.opportunities,
-        courses: s.courses,
-        saved: s.saved,
-        enrollments: s.enrollments,
-        progress: s.progress,
-        certificates: s.certificates,
-        roadmaps: s.roadmaps,
-      }),
+      // Only persist to localStorage in local mode; Supabase is the source of truth otherwise.
+      partialize: (s) =>
+        s.syncMode === "supabase"
+          ? { syncMode: s.syncMode }
+          : {
+              syncMode: s.syncMode,
+              users: s.users,
+              currentUserId: s.currentUserId,
+              opportunities: s.opportunities,
+              courses: s.courses,
+              saved: s.saved,
+              enrollments: s.enrollments,
+              progress: s.progress,
+              certificates: s.certificates,
+              roadmaps: s.roadmaps,
+            },
     },
   ),
 );

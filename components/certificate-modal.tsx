@@ -1,10 +1,11 @@
 "use client";
 
-import { Award, GraduationCap } from "lucide-react";
+import { Award, Download, GraduationCap } from "lucide-react";
 import type { Certificate } from "@/lib/types";
 import { useI18n, useT } from "@/lib/i18n";
 import { Button, Dialog } from "./ui";
 import { formatDate } from "@/lib/utils";
+import { downloadCertificatePdf } from "@/lib/certificate-pdf";
 
 export function CertificateModal({
   cert,
@@ -39,9 +40,14 @@ export function CertificateModal({
           <span>{formatDate(cert.issuedAt, lang)}</span>
         </div>
       </div>
-      <Button className="mt-5 w-full" variant="outline" onClick={onClose}>
-        {t("common.close")}
-      </Button>
+      <div className="mt-5 flex flex-col gap-2 sm:flex-row">
+        <Button className="flex-1" onClick={() => downloadCertificatePdf(cert, lang)}>
+          <Download className="h-4 w-4" /> {t("cert.downloadPdf")}
+        </Button>
+        <Button className="flex-1" variant="outline" onClick={onClose}>
+          {t("common.close")}
+        </Button>
+      </div>
     </Dialog>
   );
 }

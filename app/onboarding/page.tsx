@@ -37,8 +37,8 @@ function Onboarding({ initialGrade }: { initialGrade?: number }) {
     (step === 2 && subjects.length > 0) ||
     step === 3;
 
-  function finish() {
-    updateProfile({ grade, interests, subjects, goals, onboarded: true });
+  async function finish() {
+    await updateProfile({ grade, interests, subjects, goals, onboarded: true });
     router.push("/dashboard");
   }
 

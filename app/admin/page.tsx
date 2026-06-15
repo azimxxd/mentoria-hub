@@ -7,6 +7,7 @@ import { AuthGuard } from "@/components/auth-guard";
 import { useStore } from "@/lib/store";
 import { useT } from "@/lib/i18n";
 import { Badge, Button, Card, Dialog, Input, Label, Select, Textarea } from "@/components/ui";
+import { ImagePicker } from "@/components/image-picker";
 import {
   CATEGORIES,
   DIRECTIONS,
@@ -194,6 +195,7 @@ function OppForm({ initial, onSave, onCancel }: { initial: Opportunity; onSave: 
           <Label>{t("admin.title_")}</Label>
           <Input value={f.title} onChange={(e) => set({ title: e.target.value })} />
         </div>
+        <ImagePicker value={f.image} onChange={(image) => set({ image })} label={t("admin.coverPhoto")} />
         <div>
           <Label>{t("opps.organizer")}</Label>
           <Input value={f.organizer} onChange={(e) => set({ organizer: e.target.value })} />
@@ -370,6 +372,7 @@ function CourseForm({ initial, onSave, onCancel }: { initial: Course; onSave: (c
             <Input value={f.title} onChange={(e) => set({ title: e.target.value })} />
           </div>
         </div>
+        <ImagePicker value={f.image} onChange={(image) => set({ image })} label={t("admin.coverPhoto")} />
         <div>
           <Label>Description</Label>
           <Textarea value={f.description} onChange={(e) => set({ description: e.target.value })} />

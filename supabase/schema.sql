@@ -8,6 +8,7 @@
 create table if not exists profiles (
   id uuid primary key references auth.users(id) on delete cascade,
   full_name text not null default '',
+  email text not null default '',
   grade int check (grade between 8 and 12),
   interests text[] not null default '{}',
   subjects text[] not null default '{}',
@@ -33,6 +34,7 @@ create table if not exists opportunities (
   grade_min int not null default 8,
   grade_max int not null default 12,
   tags text[] not null default '{}',
+  image text,
   created_at timestamptz not null default now()
 );
 
@@ -46,6 +48,7 @@ create table if not exists courses (
   direction text not null default 'STEM',
   emoji text not null default '📚',
   tags text[] not null default '{}',
+  image text,
   created_at timestamptz not null default now()
 );
 
@@ -92,6 +95,21 @@ create table if not exists certificates (
   issued_at timestamptz not null default now()
 );
 
+create table if not exists roadmap_tasks (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  grade int not null check (grade between 9 and 12),
+  text text not null,
+  done boolean not null default false,
+  created_at timestamptz not null default now()
+);
+
+-- Telegram reminder bot subscribers (managed only by the bot via the service role).
+create table if not exists telegram_subscribers (
+  chat_id bigint primary key,
+  created_at timestamptz not null default now()
+);
+
 -- ----- Row Level Security -----
 alter table profiles enable row level security;
 alter table opportunities enable row level security;
@@ -101,6 +119,9 @@ alter table saved_opportunities enable row level security;
 alter table enrollments enable row level security;
 alter table lesson_progress enable row level security;
 alter table certificates enable row level security;
+alter table roadmap_tasks enable row level security;
+-- telegram_subscribers: RLS on with NO policies → only the service role (the bot) can touch it.
+alter table telegram_subscribers enable row level security;
 
 -- Public catalog: anyone authenticated can read opportunities/courses/lessons.
 create policy "read opportunities" on opportunities for select using (true);
@@ -108,7 +129,8 @@ create policy "read courses" on courses for select using (true);
 create policy "read lessons" on lessons for select using (true);
 
 -- Admins (profiles.role = 'admin') can write catalog content.
-create or replace function is_admin() returns boolean language sql stable as $$
+-- security definer so the lookup bypasses RLS and can't recurse into policies.
+create or replace function is_admin() returns boolean language sql stable security definer set search_path = public as $$
   select exists (select 1 from profiles where id = auth.uid() and role = 'admin');
 $$;
 
@@ -118,8 +140,25 @@ create policy "admin write lessons" on lessons for all using (is_admin()) with c
 
 -- Users manage their own profile and learning data.
 create policy "own profile read" on profiles for select using (auth.uid() = id);
+create policy "admin read profiles" on profiles for select using (is_admin());
 create policy "own profile write" on profiles for all using (auth.uid() = id) with check (auth.uid() = id);
 create policy "own saves" on saved_opportunities for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
 create policy "own enrollments" on enrollments for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
 create policy "own progress" on lesson_progress for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
 create policy "own certificates" on certificates for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+create policy "own roadmap" on roadmap_tasks for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+-- ----- Auto-create a profile row whenever a new auth user signs up -----
+create or replace function handle_new_user() returns trigger language plpgsql security definer set search_path = public as $$
+begin
+  insert into public.profiles (id, full_name, email)
+  values (new.id, coalesce(new.raw_user_meta_data->>'full_name', ''), new.email)
+  on conflict (id) do nothing;
+  return new;
+end;
+$$;
+
+drop trigger if exists on_auth_user_created on auth.users;
+create trigger on_auth_user_created
+  after insert on auth.users
+  for each row execute function handle_new_user();

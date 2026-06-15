@@ -56,6 +56,7 @@ export default function OpportunityDetailPage() {
           id={opp.id}
           alt={opp.title}
           emoji={DIRECTION_EMOJI[opp.direction] ?? "✨"}
+          src={opp.image}
           className="aspect-[21/9] w-full"
           sizes="(max-width: 768px) 100vw, 768px"
           priority

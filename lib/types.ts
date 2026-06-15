@@ -56,6 +56,8 @@ export interface Opportunity {
   gradeMin: number;
   gradeMax: number;
   tags: string[];
+  /** Optional cover photo (data URL or external URL). Overrides /covers/<id>.png. */
+  image?: string;
 }
 
 export interface QuizQuestion {
@@ -86,6 +88,21 @@ export interface Course {
   tags: string[];
   emoji: string;
   lessons: Lesson[];
+  /** Optional cover photo (data URL or external URL). Overrides /covers/<id>.png. */
+  image?: string;
+}
+
+export interface LiveSession {
+  courseId: string;
+  courseTitle: string;
+  emoji: string;
+  /** 0 = Sunday … 6 = Saturday */
+  weekday: number;
+  /** "HH:MM" 24h local time */
+  time: string;
+  durationMin: number;
+  title: string;
+  meetingUrl: string;
 }
 
 export type Role = "student" | "admin";

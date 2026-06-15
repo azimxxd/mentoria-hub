@@ -32,6 +32,7 @@ export function Navbar() {
   const links = [
     { href: "/opportunities", label: t("nav.opportunities") },
     { href: "/courses", label: t("nav.courses") },
+    { href: "/calendar", label: t("nav.calendar") },
     ...(user ? [{ href: "/dashboard", label: t("nav.dashboard") }] : []),
     ...(user ? [{ href: "/roadmap", label: t("nav.roadmap") }] : []),
     ...(user?.role === "admin" ? [{ href: "/admin", label: t("nav.admin") }] : []),

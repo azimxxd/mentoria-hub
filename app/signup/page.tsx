@@ -16,9 +16,9 @@ export default function SignupPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  function submit(e: React.FormEvent) {
+  async function submit(e: React.FormEvent) {
     e.preventDefault();
-    const res = signup(email, password, name);
+    const res = await signup(email, password, name);
     if (!res.ok) {
       setError(res.error);
       return;

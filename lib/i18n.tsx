@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useCallback, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useSyncExternalStore } from "react";
 import type { Lang } from "./types";
 
 type Dict = Record<string, string>;
@@ -9,6 +9,7 @@ const en: Dict = {
   "brand": "Mentoria Hub",
   "nav.opportunities": "Opportunities",
   "nav.courses": "Courses",
+  "nav.calendar": "Calendar",
   "nav.dashboard": "Dashboard",
   "nav.roadmap": "Roadmap",
   "nav.admin": "Admin",
@@ -99,6 +100,19 @@ const en: Dict = {
   "courses.courseComplete": "Course complete! 🎉",
   "courses.getCertificate": "View certificate",
   "courses.videoPlaceholder": "Lesson video",
+  "courses.prevLesson": "Previous lesson",
+  "courses.prevQuestion": "Previous",
+  "courses.nextQuestion": "Next",
+  "courses.question": "Question",
+
+  "cert.downloadPdf": "Download PDF",
+
+  "calendar.title": "Course Calendar",
+  "calendar.subtitle": "Live online lessons for every Mentoria course.",
+  "calendar.today": "Today",
+  "calendar.upcoming": "Upcoming sessions",
+  "calendar.join": "Join lesson",
+  "calendar.noSessions": "No sessions scheduled this month.",
 
   "auth.loginTitle": "Welcome back",
   "auth.signupTitle": "Create your account",
@@ -158,6 +172,7 @@ const en: Dict = {
   "admin.totalLessons": "Total lessons",
   "admin.users": "Users",
   "admin.savedField": "Save",
+  "admin.coverPhoto": "Cover photo",
   "admin.lessonsField": "Lessons (one per line: Title)",
   "admin.onlyAdmins": "This area is for Mentoria admins only.",
 
@@ -186,6 +201,7 @@ const ru: Dict = {
   "brand": "Mentoria Hub",
   "nav.opportunities": "Возможности",
   "nav.courses": "Курсы",
+  "nav.calendar": "Календарь",
   "nav.dashboard": "Кабинет",
   "nav.roadmap": "Роадмап",
   "nav.admin": "Админ",
@@ -276,6 +292,19 @@ const ru: Dict = {
   "courses.courseComplete": "Курс пройден! 🎉",
   "courses.getCertificate": "Посмотреть сертификат",
   "courses.videoPlaceholder": "Видео урока",
+  "courses.prevLesson": "Предыдущий урок",
+  "courses.prevQuestion": "Назад",
+  "courses.nextQuestion": "Далее",
+  "courses.question": "Вопрос",
+
+  "cert.downloadPdf": "Скачать PDF",
+
+  "calendar.title": "Календарь курсов",
+  "calendar.subtitle": "Живые онлайн-уроки по каждому курсу Mentoria.",
+  "calendar.today": "Сегодня",
+  "calendar.upcoming": "Ближайшие занятия",
+  "calendar.join": "Подключиться",
+  "calendar.noSessions": "В этом месяце занятий нет.",
 
   "auth.loginTitle": "С возвращением",
   "auth.signupTitle": "Создайте аккаунт",
@@ -335,6 +364,7 @@ const ru: Dict = {
   "admin.totalLessons": "Всего уроков",
   "admin.users": "Пользователи",
   "admin.savedField": "Сохранить",
+  "admin.coverPhoto": "Обложка (фото)",
   "admin.lessonsField": "Уроки (по одному в строке: Название)",
   "admin.onlyAdmins": "Этот раздел только для админов Mentoria.",
 
@@ -363,6 +393,7 @@ const kk: Dict = {
   "brand": "Mentoria Hub",
   "nav.opportunities": "Мүмкіндіктер",
   "nav.courses": "Курстар",
+  "nav.calendar": "Күнтізбе",
   "nav.dashboard": "Кабинет",
   "nav.roadmap": "Жол картасы",
   "nav.admin": "Әкімші",
@@ -453,6 +484,19 @@ const kk: Dict = {
   "courses.courseComplete": "Курс аяқталды! 🎉",
   "courses.getCertificate": "Сертификатты көру",
   "courses.videoPlaceholder": "Сабақ видеосы",
+  "courses.prevLesson": "Алдыңғы сабақ",
+  "courses.prevQuestion": "Артқа",
+  "courses.nextQuestion": "Келесі",
+  "courses.question": "Сұрақ",
+
+  "cert.downloadPdf": "PDF жүктеу",
+
+  "calendar.title": "Курстар күнтізбесі",
+  "calendar.subtitle": "Әр Mentoria курсы бойынша тікелей онлайн сабақтар.",
+  "calendar.today": "Бүгін",
+  "calendar.upcoming": "Жақын сабақтар",
+  "calendar.join": "Қосылу",
+  "calendar.noSessions": "Бұл айда сабақтар жоспарланбаған.",
 
   "auth.loginTitle": "Қайта келдіңіз",
   "auth.signupTitle": "Аккаунт жасаңыз",
@@ -512,6 +556,7 @@ const kk: Dict = {
   "admin.totalLessons": "Барлық сабақ",
   "admin.users": "Қолданушылар",
   "admin.savedField": "Сақтау",
+  "admin.coverPhoto": "Мұқаба (фото)",
   "admin.lessonsField": "Сабақтар (әр жолда: Атауы)",
   "admin.onlyAdmins": "Бұл бөлім тек Mentoria әкімшілеріне арналған.",
 
@@ -553,23 +598,34 @@ interface I18nCtx {
 const Ctx = createContext<I18nCtx | null>(null);
 const STORAGE_KEY = "mentoria-lang";
 
+// Language lives in an external (localStorage-backed) store read via
+// useSyncExternalStore. SSR renders "en"; after hydration React reconciles to
+// the stored value — no setState-in-effect and no hydration mismatch.
+const langListeners = new Set<() => void>();
+
+function readStoredLang(): Lang {
+  if (typeof window === "undefined") return "en";
+  const stored = localStorage.getItem(STORAGE_KEY) as Lang | null;
+  return stored && DICTS[stored] ? stored : "en";
+}
+
+function subscribeLang(cb: () => void) {
+  langListeners.add(cb);
+  return () => {
+    langListeners.delete(cb);
+  };
+}
+
+function setStoredLang(l: Lang) {
+  if (typeof window !== "undefined") localStorage.setItem(STORAGE_KEY, l);
+  langListeners.forEach((cb) => cb());
+}
+
 export function I18nProvider({ children }: { children: React.ReactNode }) {
-  const [lang, setLangState] = useState<Lang>("en");
+  const lang = useSyncExternalStore(subscribeLang, readStoredLang, () => "en" as Lang);
 
-  useEffect(() => {
-    const stored = (typeof window !== "undefined" && localStorage.getItem(STORAGE_KEY)) as Lang | null;
-    if (stored && DICTS[stored]) setLangState(stored);
-  }, []);
-
-  const setLang = useCallback((l: Lang) => {
-    setLangState(l);
-    if (typeof window !== "undefined") localStorage.setItem(STORAGE_KEY, l);
-  }, []);
-
-  const t = useCallback(
-    (key: string) => DICTS[lang][key] ?? en[key] ?? key,
-    [lang],
-  );
+  const setLang = (l: Lang) => setStoredLang(l);
+  const t = (key: string) => DICTS[lang][key] ?? en[key] ?? key;
 
   return <Ctx.Provider value={{ lang, setLang, t }}>{children}</Ctx.Provider>;
 }

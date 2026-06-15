@@ -17,7 +17,7 @@ export function CourseCard({ course }: { course: Course }) {
     <Link href={`/courses/${course.id}`}>
       <Card className="card-hover flex h-full flex-col overflow-hidden p-0">
         <div className="relative">
-          <CoverImage id={course.id} alt={course.title} emoji={course.emoji} className="aspect-[16/9] w-full" />
+          <CoverImage id={course.id} alt={course.title} emoji={course.emoji} src={course.image} className="aspect-[16/9] w-full" />
           <span className="absolute right-3 top-3">
             <Badge tone="primary" className="backdrop-blur">{course.level}</Badge>
           </span>

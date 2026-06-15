@@ -44,7 +44,7 @@ export function OpportunityCard({ opp }: { opp: Opportunity }) {
   return (
     <Card className="card-hover flex flex-col overflow-hidden p-0">
       <Link href={`/opportunities/${opp.id}`} className="relative block">
-        <CoverImage id={opp.id} alt={opp.title} emoji={DIRECTION_EMOJI[opp.direction] ?? "✨"} className="aspect-[16/9] w-full" />
+        <CoverImage id={opp.id} alt={opp.title} emoji={DIRECTION_EMOJI[opp.direction] ?? "✨"} src={opp.image} className="aspect-[16/9] w-full" />
         <div className="absolute left-3 top-3 flex flex-wrap gap-1.5">
           <Badge tone="primary" className="backdrop-blur">{opp.direction}</Badge>
           <Badge tone="muted" className="backdrop-blur">{opp.category}</Badge>

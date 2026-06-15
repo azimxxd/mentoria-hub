@@ -1,0 +1,45 @@
+{
+  "$comment": "Weekly recurring live online lessons. Shared source of truth for the calendar UI (lib/live-sessions.ts) and the Telegram reminder bot (scripts/telegram-bot.mjs). weekday: 0=Sun … 6=Sat. time is 24h local HH:MM.",
+  "sessions": [
+    {
+      "courseId": "course_english",
+      "courseTitle": "English for Academic Success",
+      "emoji": "📘",
+      "weekday": 1,
+      "time": "18:00",
+      "durationMin": 60,
+      "title": "Live Writing Workshop",
+      "meetingUrl": "https://meet.mentoria.hub/english"
+    },
+    {
+      "courseId": "course_econ",
+      "courseTitle": "Intro to Economics",
+      "emoji": "💹",
+      "weekday": 2,
+      "time": "17:30",
+      "durationMin": 60,
+      "title": "Live Markets Discussion",
+      "meetingUrl": "https://meet.mentoria.hub/econ"
+    },
+    {
+      "courseId": "course_math",
+      "courseTitle": "Math Foundations",
+      "emoji": "📐",
+      "weekday": 3,
+      "time": "19:00",
+      "durationMin": 60,
+      "title": "Live Problem-Solving Session",
+      "meetingUrl": "https://meet.mentoria.hub/math"
+    },
+    {
+      "courseId": "course_physics",
+      "courseTitle": "Physics Foundations",
+      "emoji": "🔭",
+      "weekday": 5,
+      "time": "18:30",
+      "durationMin": 60,
+      "title": "Live Physics Lab Q&A",
+      "meetingUrl": "https://meet.mentoria.hub/physics"
+    }
+  ]
+}

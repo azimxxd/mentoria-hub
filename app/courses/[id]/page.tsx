@@ -58,6 +58,7 @@ export default function CourseDetailPage() {
           id={course.id}
           alt={course.title}
           emoji={course.emoji}
+          src={course.image}
           className="aspect-[21/9] w-full"
           sizes="(max-width: 896px) 100vw, 896px"
           priority

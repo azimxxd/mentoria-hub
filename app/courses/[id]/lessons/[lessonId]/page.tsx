@@ -47,6 +47,7 @@ function Lesson() {
   }
 
   const done = lessonProgress(lessonId)?.completed;
+  const prev = course.lessons[idx - 1];
   const next = course.lessons[idx + 1];
   const noQuiz = lesson.quiz.length === 0;
   const canComplete = done || noQuiz || quizScore != null;
@@ -101,6 +102,13 @@ function Lesson() {
       )}
 
       <div className="mt-6 flex flex-wrap items-center gap-3">
+        {prev && (
+          <Link href={`/courses/${courseId}/lessons/${prev.id}`}>
+            <Button variant="outline">
+              <ArrowLeft className="h-4 w-4" /> {t("courses.prevLesson")}
+            </Button>
+          </Link>
+        )}
         <Button onClick={markComplete} disabled={!canComplete}>
           <CheckCircle2 className="h-4 w-4" />
           {done ? t("common.completed") : t("courses.markComplete")}

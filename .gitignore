@@ -37,6 +37,9 @@ yarn-error.log*
 # vercel
 .vercel
 
+# telegram bot subscriber store (contains chat IDs)
+scripts/telegram-subs.json
+
 # local agent/editor config (machine-specific)
 .claude
 
