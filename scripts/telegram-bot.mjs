@@ -188,6 +188,32 @@ async function linkAccount(token, chatId) {
   }
 }
 
+// ---- website login (Log in with Telegram) ----
+async function recordLogin(token, msg) {
+  if (!hasServiceRole) return false;
+  const from = msg.from || {};
+  const name = [from.first_name, from.last_name].filter(Boolean).join(" ") || from.username || "Telegram User";
+  try {
+    const { data, error } = await supabase
+      .from("telegram_logins")
+      .update({
+        status: "ready",
+        tg_user_id: from.id,
+        tg_username: from.username || null,
+        tg_name: name,
+        chat_id: msg.chat.id,
+      })
+      .eq("token", token)
+      .eq("status", "pending")
+      .select("token");
+    if (error) throw error;
+    return Boolean(data && data.length);
+  } catch (err) {
+    console.error("record login failed:", err.message);
+    return false;
+  }
+}
+
 async function getLinkedUsers() {
   if (!hasServiceRole) return [];
   try {
@@ -267,6 +293,17 @@ async function handleUpdate(u) {
   switch (cmd) {
     case "/start": {
       const payload = msg.text.trim().split(/\s+/)[1]; // deep-link token after /start
+      // "Log in with Telegram" deep link: /start login_<token>
+      if (payload && payload.startsWith("login_") && hasServiceRole) {
+        const ok = await recordLogin(payload.slice("login_".length), msg);
+        await send(
+          chatId,
+          ok
+            ? "✅ <b>You're logged in!</b> Switch back to the Mentoria Hub tab — it'll sign you in automatically."
+            : "⚠️ That login link is invalid or expired. Click <b>Log in with Telegram</b> on the website again.",
+        );
+        break;
+      }
       if (payload && hasServiceRole) {
         const ok = await linkAccount(payload, chatId);
         if (ok) {

@@ -8,10 +8,12 @@ import { useStore } from "@/lib/store";
 import { useT } from "@/lib/i18n";
 import { Badge, Button, Card, Dialog, Input, Label, Select, Textarea } from "@/components/ui";
 import { ImagePicker } from "@/components/image-picker";
+import { LessonEditor } from "@/components/lesson-editor";
 import {
   CATEGORIES,
   DIRECTIONS,
   type Course,
+  type Lesson,
   type Opportunity,
   type OppCategory,
   type OppFormat,
@@ -324,37 +326,26 @@ function CoursesManager({ courses }: { courses: Course[] }) {
   );
 }
 
-function CourseForm({ initial, onSave, onCancel }: { initial: Course; onSave: (c: Course) => void; onCancel: () => void }) {
+export function CourseForm({ initial, onSave, onCancel }: { initial: Course; onSave: (c: Course) => void; onCancel: () => void }) {
   const t = useT();
   const [f, setF] = useState<Course>(initial);
   const [tags, setTags] = useState(initial.tags.join(", "));
-  const [lessonsText, setLessonsText] = useState(
-    initial.lessons.map((l) => `${l.title} :: ${l.content}`).join("\n"),
-  );
+  const [lessons, setLessons] = useState<Lesson[]>(initial.lessons);
   const set = (patch: Partial<Course>) => setF((p) => ({ ...p, ...patch }));
 
   function build(): Course {
-    const lessons = lessonsText
-      .split("\n")
-      .map((line) => line.trim())
-      .filter(Boolean)
-      .map((line, i) => {
-        const [title, ...rest] = line.split("::");
-        const existing = initial.lessons[i];
-        return {
-          id: existing?.id ?? uid("l"),
-          title: (title ?? `Lesson ${i + 1}`).trim(),
-          content: rest.join("::").trim() || existing?.content || "Lesson content coming soon.",
-          durationMin: existing?.durationMin ?? 10,
-          videoUrl: "",
-          quiz: existing?.quiz ?? [],
-        };
-      });
+    const cleaned = lessons
+      .filter((l) => l.title.trim())
+      .map((l, i) => ({
+        ...l,
+        title: l.title.trim() || `Lesson ${i + 1}`,
+        content: l.content.trim() || "Lesson content coming soon.",
+      }));
     return {
       ...f,
       id: f.id || uid("course"),
       tags: tags.split(",").map((s) => s.trim()).filter(Boolean),
-      lessons,
+      lessons: cleaned,
     };
   }
 
@@ -399,15 +390,7 @@ function CourseForm({ initial, onSave, onCancel }: { initial: Course; onSave: (c
           <Label>Tags (comma separated)</Label>
           <Input value={tags} onChange={(e) => setTags(e.target.value)} />
         </div>
-        <div>
-          <Label>{t("admin.lessonsField")}</Label>
-          <Textarea
-            value={lessonsText}
-            onChange={(e) => setLessonsText(e.target.value)}
-            className="min-h-32 font-mono text-xs"
-            placeholder={"Intro to Variables :: Variables store values...\nLoops :: A loop repeats..."}
-          />
-        </div>
+        <LessonEditor lessons={lessons} onChange={setLessons} />
       </div>
       <div className="mt-5 flex justify-end gap-2">
         <Button variant="ghost" onClick={onCancel}>{t("common.cancel")}</Button>

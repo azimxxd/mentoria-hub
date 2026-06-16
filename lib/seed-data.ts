@@ -221,7 +221,7 @@ export const SEED_COURSES: Course[] = [
         durationMin: 12,
         content:
           "Academic writing relies on precise, formal vocabulary. In this lesson you'll learn high-frequency academic words, how to replace casual phrases with formal equivalents, and how to use linking words (however, therefore, moreover) to connect ideas. Practice swapping 'a lot of' for 'numerous' and 'get' for 'obtain'.",
-        videoUrl: "",
+        videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
         quiz: [
           {
             id: "q1",
@@ -243,7 +243,7 @@ export const SEED_COURSES: Course[] = [
         durationMin: 15,
         content:
           "A strong argument essay has an introduction with a clear thesis, body paragraphs each built around one main idea (topic sentence + evidence + explanation), and a conclusion that restates the position. Learn the PEEL structure: Point, Evidence, Explanation, Link.",
-        videoUrl: "",
+        videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
         quiz: [
           {
             id: "q1",
@@ -265,7 +265,7 @@ export const SEED_COURSES: Course[] = [
         durationMin: 10,
         content:
           "Academic speaking rewards clarity over speed. Use signposting language ('First, I'll discuss…', 'To summarize…'), pause deliberately, and support claims with examples. Record yourself, then review pacing and filler words.",
-        videoUrl: "",
+        videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
         quiz: [
           {
             id: "q1",
@@ -299,7 +299,7 @@ export const SEED_COURSES: Course[] = [
         durationMin: 14,
         content:
           "A linear equation has the form ax + b = c. Solve by isolating x: subtract b, then divide by a. Inequalities follow the same steps, but remember to flip the sign when multiplying or dividing by a negative number.",
-        videoUrl: "",
+        videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4",
         quiz: [
           {
             id: "q1",
@@ -326,7 +326,7 @@ export const SEED_COURSES: Course[] = [
         durationMin: 13,
         content:
           "Percentages are ratios out of 100. To find 15% of 80, multiply 80 × 0.15 = 12. Proportions let you scale recipes, maps and exchange rates by setting two ratios equal and cross-multiplying.",
-        videoUrl: "",
+        videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4",
         quiz: [
           {
             id: "q1",
@@ -342,7 +342,7 @@ export const SEED_COURSES: Course[] = [
         durationMin: 16,
         content:
           "A function maps each input to exactly one output. f(x) = 2x + 1 means: take x, double it, add one. Learn to evaluate functions, read them from tables and graphs, and recognize linear vs non-linear behavior.",
-        videoUrl: "",
+        videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBubbles.mp4",
         quiz: [
           {
             id: "q1",
@@ -371,7 +371,7 @@ export const SEED_COURSES: Course[] = [
         durationMin: 12,
         content:
           "Speed = distance ÷ time. Velocity adds direction. Acceleration is how quickly velocity changes. A car going from 0 to 20 m/s in 4 seconds accelerates at 5 m/s².",
-        videoUrl: "",
+        videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
         quiz: [
           {
             id: "q1",
@@ -387,7 +387,7 @@ export const SEED_COURSES: Course[] = [
         durationMin: 15,
         content:
           "Newton's second law: F = ma. A larger force produces a larger acceleration; a heavier object accelerates less for the same force. Friction and gravity are everyday forces acting on objects.",
-        videoUrl: "",
+        videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
         quiz: [
           {
             id: "q1",
@@ -403,7 +403,7 @@ export const SEED_COURSES: Course[] = [
         durationMin: 13,
         content:
           "Work = force × distance. Energy is the capacity to do work and is conserved — it changes form (kinetic ↔ potential) but is never lost. Lifting a book gives it gravitational potential energy.",
-        videoUrl: "",
+        videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4",
         quiz: [
           {
             id: "q1",
@@ -437,7 +437,7 @@ export const SEED_COURSES: Course[] = [
         durationMin: 12,
         content:
           "Demand falls as price rises; supply rises as price rises. The market price settles where the two curves meet — the equilibrium. Shortages push prices up; surpluses push them down.",
-        videoUrl: "",
+        videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/VolkswagenGTIReview.mp4",
         quiz: [
           {
             id: "q1",
@@ -453,7 +453,7 @@ export const SEED_COURSES: Course[] = [
         durationMin: 11,
         content:
           "Every choice has a cost — the value of the next best alternative you gave up. Spending two hours gaming has the opportunity cost of two hours of studying. Good decisions weigh these trade-offs.",
-        videoUrl: "",
+        videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4",
         quiz: [
           {
             id: "q1",
@@ -474,7 +474,7 @@ export const SEED_COURSES: Course[] = [
         durationMin: 13,
         content:
           "Money is a medium of exchange, a store of value and a unit of account. Inflation is a general rise in prices, which reduces purchasing power. Central banks adjust interest rates to keep inflation stable.",
-        videoUrl: "",
+        videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4",
         quiz: [
           {
             id: "q1",

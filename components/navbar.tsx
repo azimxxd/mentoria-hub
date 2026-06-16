@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
-import { GraduationCap, LayoutDashboard, LogOut, Map, Menu, Shield, X } from "lucide-react";
+import { GraduationCap, LayoutDashboard, LogOut, Map, Menu, Shield, Trophy, Users, X } from "lucide-react";
 import { useT } from "@/lib/i18n";
 import { useHydrated, useStore } from "@/lib/store";
 import { ThemeToggle } from "./theme-toggle";
@@ -32,9 +32,11 @@ export function Navbar() {
   const links = [
     { href: "/opportunities", label: t("nav.opportunities") },
     { href: "/courses", label: t("nav.courses") },
+    { href: "/leaderboard", label: t("nav.leaderboard") },
     { href: "/calendar", label: t("nav.calendar") },
     ...(user ? [{ href: "/dashboard", label: t("nav.dashboard") }] : []),
     ...(user ? [{ href: "/roadmap", label: t("nav.roadmap") }] : []),
+    ...(user?.role === "mentor" ? [{ href: "/mentor", label: t("nav.mentor") }] : []),
     ...(user?.role === "admin" ? [{ href: "/admin", label: t("nav.admin") }] : []),
   ];
 
@@ -101,6 +103,14 @@ export function Navbar() {
                 <DropdownMenuItem onClick={() => router.push("/roadmap")}>
                   <Map className="h-4 w-4" /> {t("nav.roadmap")}
                 </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => router.push("/leaderboard")}>
+                  <Trophy className="h-4 w-4" /> {t("nav.leaderboard")}
+                </DropdownMenuItem>
+                {user.role === "mentor" && (
+                  <DropdownMenuItem onClick={() => router.push("/mentor")}>
+                    <Users className="h-4 w-4" /> {t("nav.mentor")}
+                  </DropdownMenuItem>
+                )}
                 {user.role === "admin" && (
                   <DropdownMenuItem onClick={() => router.push("/admin")}>
                     <Shield className="h-4 w-4" /> {t("nav.admin")}

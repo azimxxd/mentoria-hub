@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useStore } from "@/lib/store";
 import { useT } from "@/lib/i18n";
 import { Button, Card, Input, Label } from "@/components/ui";
+import { TelegramLoginButton } from "@/components/telegram-login-button";
 
 export default function LoginPage() {
   const t = useT();
@@ -42,6 +43,7 @@ export default function LoginPage() {
           {error && <p className="text-sm text-danger">{error}</p>}
           <Button type="submit" className="w-full">{t("auth.loginBtn")}</Button>
         </form>
+        <TelegramLoginButton />
         <Link href="/signup" className="mt-4 block text-center text-sm text-primary hover:underline">
           {t("auth.toSignup")}
         </Link>

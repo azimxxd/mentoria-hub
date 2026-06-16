@@ -90,6 +90,20 @@ export interface Course {
   lessons: Lesson[];
   /** Optional cover photo (data URL or external URL). Overrides /covers/<id>.png. */
   image?: string;
+  /** Mentor (or admin) who owns/created this course. Used for the mentor portal + RLS. */
+  authorId?: string;
+  /** Display name of the author, when known (leaderboard/listing convenience). */
+  authorName?: string;
+}
+
+/** One row of the student leaderboard. */
+export interface LeaderboardEntry {
+  userId: string;
+  name: string;
+  points: number;
+  completedLessons: number;
+  certificates: number;
+  grade?: number;
 }
 
 export interface LiveSession {
@@ -105,7 +119,7 @@ export interface LiveSession {
   meetingUrl: string;
 }
 
-export type Role = "student" | "admin";
+export type Role = "student" | "mentor" | "admin";
 
 export interface User {
   id: string;

@@ -6,9 +6,11 @@ import type {
   Certificate,
   Course,
   Enrollment,
+  LeaderboardEntry,
   LessonProgress,
   Opportunity,
   RoadmapTask,
+  Role,
   User,
 } from "./types";
 import { SEED_COURSES, SEED_OPPORTUNITIES, SEED_USERS } from "./seed-data";
@@ -32,13 +34,14 @@ interface StoreState {
   progress: Record<string, Record<string, LessonProgress>>;
   certificates: Record<string, Certificate[]>;
   roadmaps: Record<string, RoadmapTask[]>;
+  leaderboard: LeaderboardEntry[];
 
   // lifecycle
   init: () => Promise<void>;
   _loadUser: (userId: string, email: string) => Promise<void>;
 
   // auth
-  signup: (email: string, password: string, name: string) => Promise<Result>;
+  signup: (email: string, password: string, name: string, role?: Role) => Promise<Result>;
   login: (email: string, password: string) => Promise<Result>;
   logout: () => Promise<void>;
   currentUser: () => User | null;
@@ -57,6 +60,13 @@ interface StoreState {
   courseProgressPct: (courseId: string) => number;
   enrolledCourses: () => Course[];
   myCertificates: () => Certificate[];
+
+  // leaderboard
+  loadLeaderboard: () => Promise<void>;
+
+  // mentor
+  myCourses: () => Course[];
+  uploadLessonVideo: (file: File) => Promise<string | null>;
 
   // roadmap
   roadmap: () => RoadmapTask[];
@@ -100,6 +110,7 @@ export const useStore = create<StoreState>()(
       progress: {},
       certificates: {},
       roadmaps: {},
+      leaderboard: [],
 
       /* --------------------------- lifecycle --------------------------- */
       init: async () => {
@@ -182,15 +193,17 @@ export const useStore = create<StoreState>()(
       },
 
       /* --------------------------- auth --------------------------- */
-      signup: async (email, password, name) => {
+      signup: async (email, password, name, role = "student") => {
         email = email.trim().toLowerCase();
         if (!email || !password || !name) return { ok: false, error: "All fields are required." };
+        // Only student/mentor can self-register; admin is assigned manually.
+        const safeRole: Role = role === "mentor" ? "mentor" : "student";
 
         if (get().syncMode === "supabase") {
           const { data, error } = await sb().auth.signUp({
             email,
             password,
-            options: { data: { full_name: name.trim() } },
+            options: { data: { full_name: name.trim(), role: safeRole } },
           });
           if (error) return { ok: false, error: error.message };
           if (data.session) await get()._loadUser(data.session.user.id, email);
@@ -205,7 +218,7 @@ export const useStore = create<StoreState>()(
           email,
           password,
           name: name.trim(),
-          role: "student",
+          role: safeRole,
           onboarded: false,
           interests: [],
           subjects: [],
@@ -389,6 +402,53 @@ export const useStore = create<StoreState>()(
         return get().certificates[id] ?? [];
       },
 
+      /* --------------------------- leaderboard --------------------------- */
+      loadLeaderboard: async () => {
+        if (get().syncMode === "supabase") {
+          try {
+            const rows = await db.loadLeaderboard(sb());
+            set({ leaderboard: rows });
+          } catch (err) {
+            console.error("loadLeaderboard failed:", err);
+          }
+          return;
+        }
+        // local mode: compute from in-memory progress + certificates.
+        const { users, progress, certificates } = get();
+        const rows: LeaderboardEntry[] = users
+          .filter((u) => u.role === "student")
+          .map((u) => {
+            const completedLessons = Object.values(progress[u.id] ?? {}).filter((p) => p.completed).length;
+            const certs = (certificates[u.id] ?? []).length;
+            return {
+              userId: u.id,
+              name: u.name || "Student",
+              grade: u.grade,
+              completedLessons,
+              certificates: certs,
+              points: completedLessons * 10 + certs * 100,
+            };
+          })
+          .sort((a, b) => b.points - a.points || b.completedLessons - a.completedLessons);
+        set({ leaderboard: rows });
+      },
+
+      /* --------------------------- mentor --------------------------- */
+      myCourses: () => {
+        const id = get().currentUserId;
+        if (!id) return [];
+        return get().courses.filter((c) => c.authorId === id);
+      },
+
+      uploadLessonVideo: async (file) => {
+        if (get().syncMode !== "supabase") {
+          // No backend storage in local mode — fall back to an in-browser object URL
+          // (works for the current session only).
+          return URL.createObjectURL(file);
+        }
+        return db.dbUploadLessonVideo(sb(), file);
+      },
+
       /* --------------------------- roadmap --------------------------- */
       roadmap: () => {
         const id = get().currentUserId;
@@ -494,6 +554,9 @@ export const useStore = create<StoreState>()(
       },
 
       saveCourse: (c) => {
+        // Stamp ownership so the mentor portal + RLS recognize the creator.
+        const ownerId = get().currentUserId;
+        if (ownerId && !c.authorId) c = { ...c, authorId: ownerId };
         if (get().syncMode === "supabase") {
           void db.dbUpsertCourse(sb(), c).then((saved) => {
             if (!saved) return;

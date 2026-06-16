@@ -1,17 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { ArrowLeft, ArrowRight, CheckCircle2, PlayCircle } from "lucide-react";
+import { ArrowLeft, ArrowRight, CheckCircle2, Lock } from "lucide-react";
 import { AuthGuard } from "@/components/auth-guard";
 import { useStore } from "@/lib/store";
 import { useT } from "@/lib/i18n";
 import { Badge, Button, Card, Progress } from "@/components/ui";
 import { QuizWidget } from "@/components/quiz-widget";
+import { VideoPlayer } from "@/components/video-player";
 import { CertificateModal } from "@/components/certificate-modal";
 import type { Certificate } from "@/lib/types";
+
+const WATCH_GATE = 90; // % of the video required before advancing
 
 export default function LessonPage() {
   return <AuthGuard>{() => <Lesson />}</AuthGuard>;
@@ -30,8 +33,15 @@ function Lesson() {
   const pct = useStore((s) => s.courseProgressPct(courseId));
 
   const [quizScore, setQuizScore] = useState<number | null>(null);
+  const [watched, setWatched] = useState(0);
   const [cert, setCert] = useState<Certificate | null>(null);
   const [showCert, setShowCert] = useState(false);
+
+  // Reset the watch gate whenever we move to a different lesson.
+  useEffect(() => {
+    setWatched(0);
+    setQuizScore(null);
+  }, [lessonId]);
 
   if (!course) {
     return (
@@ -50,7 +60,10 @@ function Lesson() {
   const prev = course.lessons[idx - 1];
   const next = course.lessons[idx + 1];
   const noQuiz = lesson.quiz.length === 0;
-  const canComplete = done || noQuiz || quizScore != null;
+  const hasVideo = Boolean(lesson.videoUrl);
+  // Completed lessons aren't re-gated; otherwise require 90% of the video watched.
+  const videoOk = !hasVideo || done || watched >= WATCH_GATE;
+  const canComplete = (done || noQuiz || quizScore != null) && videoOk;
 
   function markComplete() {
     completeLesson(courseId, lessonId, quizScore ?? 100);
@@ -85,11 +98,17 @@ function Lesson() {
 
       <h1 className="mt-4 text-2xl font-bold">{lesson.title}</h1>
 
-      {/* Video placeholder */}
-      <div className="mt-5 flex aspect-video w-full flex-col items-center justify-center rounded-[var(--radius-lg)] border border-border bg-gradient-to-br from-secondary/40 to-muted text-muted-foreground">
-        <PlayCircle className="h-14 w-14 text-primary" />
-        <p className="mt-2 text-sm">{t("courses.videoPlaceholder")} · {lesson.durationMin}:00</p>
-      </div>
+      <VideoPlayer key={lesson.id} url={lesson.videoUrl ?? ""} durationMin={lesson.durationMin} onProgress={setWatched} />
+
+      {/* Watch-gate progress */}
+      {hasVideo && !done && (
+        <div className="mt-3 flex items-center gap-3">
+          <Progress value={watched} className="flex-1" />
+          <span className={`text-xs font-medium ${videoOk ? "text-success" : "text-muted-foreground"}`}>
+            {videoOk ? t("courses.watchDone") : `${watched}% / ${WATCH_GATE}%`}
+          </span>
+        </div>
+      )}
 
       <Card className="mt-5 p-6">
         <p className="leading-relaxed">{lesson.content}</p>
@@ -113,13 +132,18 @@ function Lesson() {
           <CheckCircle2 className="h-4 w-4" />
           {done ? t("common.completed") : t("courses.markComplete")}
         </Button>
-        {next && (
-          <Link href={`/courses/${courseId}/lessons/${next.id}`}>
-            <Button variant="outline">
-              {t("courses.nextLesson")} <ArrowRight className="h-4 w-4" />
+        {next &&
+          (videoOk ? (
+            <Link href={`/courses/${courseId}/lessons/${next.id}`}>
+              <Button variant="outline">
+                {t("courses.nextLesson")} <ArrowRight className="h-4 w-4" />
+              </Button>
+            </Link>
+          ) : (
+            <Button variant="outline" disabled title={t("courses.watchToUnlock")}>
+              <Lock className="h-4 w-4" /> {t("courses.nextLesson")}
             </Button>
-          </Link>
-        )}
+          ))}
         {!next && done && (
           <span className="font-medium text-success">{t("courses.courseComplete")}</span>
         )}

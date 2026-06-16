@@ -67,3 +67,17 @@ select c.id, v.position, v.title, v.content, v.duration_min, v.quiz::jsonb from 
   (1, 'Opportunity Cost', 'Every choice has a cost — the value of the next best alternative you gave up. Good decisions weigh these trade-offs.', 11, '[{"id":"q1","question":"Opportunity cost is best described as…","options":["The money you spend","The value of the next best alternative given up","A type of tax","The total budget"],"answer":1}]'),
   (2, 'Money & Inflation', 'Money is a medium of exchange, store of value and unit of account. Inflation is a general rise in prices that reduces purchasing power.', 13, '[{"id":"q1","question":"Inflation means that over time…","options":["Money buys more","Prices generally rise and money buys less","Prices are fixed","Banks close"],"answer":1}]')
 ) as v(position, title, content, duration_min, quiz);
+
+-- ----- Demo lesson videos (stable public sample MP4s; powers the 90%-watch gate) -----
+update lessons set video_url = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4'           where title = 'Academic Vocabulary Foundations';
+update lessons set video_url = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4'          where title = 'Structuring an Argument Essay';
+update lessons set video_url = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4'              where title = 'Speaking with Confidence';
+update lessons set video_url = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4'         where title = 'Linear Equations & Inequalities';
+update lessons set video_url = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4'        where title = 'Ratios, Proportions & Percentages';
+update lessons set video_url = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBubbles.mp4'       where title = 'Intro to Functions';
+update lessons set video_url = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4'              where title = 'Motion & Speed';
+update lessons set video_url = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4'            where title = 'Forces & Newton''s Laws';
+update lessons set video_url = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4'              where title = 'Energy & Work';
+update lessons set video_url = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/VolkswagenGTIReview.mp4'       where title = 'Supply & Demand';
+update lessons set video_url = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4' where title = 'Opportunity Cost';
+update lessons set video_url = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4'                    where title = 'Money & Inflation';

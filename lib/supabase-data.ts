@@ -2,6 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type {
   Course,
   Direction,
+  LeaderboardEntry,
   Lesson,
   Opportunity,
   RoadmapTask,
@@ -53,6 +54,7 @@ export function mapCourse(r: Row, lessons: Row[]): Course {
     emoji: String(r.emoji ?? "📚"),
     tags: (r.tags as string[]) ?? [],
     image: (r.image as string) || undefined,
+    authorId: (r.author_id as string) || undefined,
     lessons: lessons
       .filter((l) => String(l.course_id) === String(r.id))
       .sort((a, b) => Number(a.position ?? 0) - Number(b.position ?? 0))
@@ -270,6 +272,7 @@ export async function dbUpsertCourse(sb: SupabaseClient, c: Course): Promise<Cou
     tags: c.tags,
     image: c.image ?? null,
   };
+  if (c.authorId) courseRow.author_id = c.authorId;
   if (isUuid(c.id)) courseRow.id = c.id;
 
   const { data: courseData } = await sb.from("courses").upsert(courseRow).select("*").single();
@@ -296,6 +299,40 @@ export async function dbUpsertCourse(sb: SupabaseClient, c: Course): Promise<Cou
 
 export const dbDeleteCourse = (sb: SupabaseClient, id: string) =>
   sb.from("courses").delete().eq("id", id);
+
+/* ----------------------------- leaderboard ----------------------------- */
+
+export async function loadLeaderboard(sb: SupabaseClient): Promise<LeaderboardEntry[]> {
+  const { data, error } = await sb.rpc("get_leaderboard");
+  if (error || !data) return [];
+  return (data as Row[]).map((r) => ({
+    userId: String(r.user_id),
+    name: String(r.name ?? "Student"),
+    grade: r.grade == null ? undefined : Number(r.grade),
+    completedLessons: Number(r.completed_lessons ?? 0),
+    certificates: Number(r.certificates ?? 0),
+    points: Number(r.points ?? 0),
+  }));
+}
+
+/* ----------------------------- video upload ----------------------------- */
+
+/** Uploads a lesson video file to the public `lesson-videos` bucket and returns its public URL. */
+export async function dbUploadLessonVideo(sb: SupabaseClient, file: File): Promise<string | null> {
+  const ext = (file.name.split(".").pop() || "mp4").toLowerCase().replace(/[^a-z0-9]/g, "");
+  const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+  const { error } = await sb.storage.from("lesson-videos").upload(path, file, {
+    cacheControl: "3600",
+    upsert: false,
+    contentType: file.type || "video/mp4",
+  });
+  if (error) {
+    console.error("video upload failed:", error.message);
+    return null;
+  }
+  const { data } = sb.storage.from("lesson-videos").getPublicUrl(path);
+  return data.publicUrl;
+}
 
 /* ----------------------------- helpers ----------------------------- */
 

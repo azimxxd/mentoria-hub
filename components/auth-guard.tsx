@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import type { User } from "@/lib/types";
+import type { Role, User } from "@/lib/types";
 import { useHydrated, useStore } from "@/lib/store";
 import { useT } from "@/lib/i18n";
 import { Button, Skeleton } from "./ui";
@@ -9,9 +9,12 @@ import { Button, Skeleton } from "./ui";
 export function AuthGuard({
   children,
   requireAdmin = false,
+  roles,
 }: {
   children: (user: User) => React.ReactNode;
   requireAdmin?: boolean;
+  /** When set, the user's role must be one of these (admins always allowed). */
+  roles?: Role[];
 }) {
   const t = useT();
   const hydrated = useHydrated();
@@ -41,7 +44,13 @@ export function AuthGuard({
     );
   }
 
-  if (requireAdmin && user.role !== "admin") {
+  const roleDenied = requireAdmin
+    ? user.role !== "admin"
+    : roles
+      ? !(roles.includes(user.role) || user.role === "admin")
+      : false;
+
+  if (roleDenied) {
     return (
       <div className="mx-auto flex max-w-md flex-col items-center px-4 py-24 text-center">
         <p className="text-lg font-semibold">{t("admin.onlyAdmins")}</p>

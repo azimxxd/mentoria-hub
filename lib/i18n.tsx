@@ -203,6 +203,51 @@ const en: Dict = {
   "toast.courseDone": "Course completed! Certificate issued 🎉",
   "toast.adminSaved": "Saved",
   "toast.adminDeleted": "Deleted",
+
+  "nav.leaderboard": "Leaderboard",
+  "nav.mentor": "Mentor",
+
+  "auth.roleLabel": "I'm joining as",
+  "auth.roleStudent": "Student",
+  "auth.roleStudentDesc": "Learn & find opportunities",
+  "auth.roleMentor": "Mentor",
+  "auth.roleMentorDesc": "Create & publish courses",
+
+  "tgLogin.or": "or",
+  "tgLogin.button": "Log in with Telegram",
+  "tgLogin.waiting": "Waiting for Telegram…",
+  "tgLogin.hint": "Press Start in the bot that just opened, then come back here.",
+  "tgLogin.expired": "This login link expired. Try again.",
+  "tgLogin.timeout": "Timed out. Please try again.",
+
+  "leaderboard.title": "Leaderboard",
+  "leaderboard.subtitle": "Top students by learning progress",
+  "leaderboard.empty": "No students on the board yet — complete a lesson to appear here!",
+  "leaderboard.points": "points",
+  "leaderboard.you": "You",
+  "leaderboard.lessons": "lessons",
+  "leaderboard.formula": "Points = completed lessons × 10 + certificates × 100",
+
+  "mentor.title": "Mentor portal",
+  "mentor.subtitle": "Create and manage your courses",
+  "mentor.myCourses": "My courses",
+  "mentor.students": "Students",
+  "mentor.empty": "You haven't published any courses yet.",
+
+  "admin.addLesson": "Add lesson",
+  "admin.noLessons": "No lessons yet. Add your first one.",
+  "admin.lessonTitle": "Lesson title",
+  "admin.lessonContent": "Lesson content / notes",
+  "admin.videoLabel": "Video — paste a link or upload a file",
+  "admin.uploadVideo": "Upload",
+  "admin.uploading": "Uploading…",
+  "admin.videoUploaded": "Video uploaded",
+  "admin.videoUploadFailed": "Upload failed",
+  "admin.notVideo": "Please choose a video file.",
+  "admin.moveDown": "Move down",
+
+  "courses.watchDone": "Watched ✓",
+  "courses.watchToUnlock": "Watch 90% of the video to unlock",
 };
 
 const ru: Dict = {
@@ -403,6 +448,51 @@ const ru: Dict = {
   "toast.courseDone": "Курс пройден! Сертификат выдан 🎉",
   "toast.adminSaved": "Сохранено",
   "toast.adminDeleted": "Удалено",
+
+  "nav.leaderboard": "Рейтинг",
+  "nav.mentor": "Ментор",
+
+  "auth.roleLabel": "Я регистрируюсь как",
+  "auth.roleStudent": "Ученик",
+  "auth.roleStudentDesc": "Учиться и искать возможности",
+  "auth.roleMentor": "Ментор",
+  "auth.roleMentorDesc": "Создавать и публиковать курсы",
+
+  "tgLogin.or": "или",
+  "tgLogin.button": "Войти через Telegram",
+  "tgLogin.waiting": "Ожидаем Telegram…",
+  "tgLogin.hint": "Нажмите «Start» в открывшемся боте, затем вернитесь сюда.",
+  "tgLogin.expired": "Ссылка для входа устарела. Попробуйте снова.",
+  "tgLogin.timeout": "Время вышло. Попробуйте ещё раз.",
+
+  "leaderboard.title": "Рейтинг",
+  "leaderboard.subtitle": "Лучшие ученики по прогрессу обучения",
+  "leaderboard.empty": "Пока никого нет — пройдите урок, чтобы попасть сюда!",
+  "leaderboard.points": "очков",
+  "leaderboard.you": "Вы",
+  "leaderboard.lessons": "уроков",
+  "leaderboard.formula": "Очки = пройденные уроки × 10 + сертификаты × 100",
+
+  "mentor.title": "Кабинет ментора",
+  "mentor.subtitle": "Создавайте и управляйте своими курсами",
+  "mentor.myCourses": "Мои курсы",
+  "mentor.students": "Ученики",
+  "mentor.empty": "Вы ещё не опубликовали ни одного курса.",
+
+  "admin.addLesson": "Добавить урок",
+  "admin.noLessons": "Уроков пока нет. Добавьте первый.",
+  "admin.lessonTitle": "Название урока",
+  "admin.lessonContent": "Содержание урока / заметки",
+  "admin.videoLabel": "Видео — вставьте ссылку или загрузите файл",
+  "admin.uploadVideo": "Загрузить",
+  "admin.uploading": "Загрузка…",
+  "admin.videoUploaded": "Видео загружено",
+  "admin.videoUploadFailed": "Не удалось загрузить",
+  "admin.notVideo": "Выберите видеофайл.",
+  "admin.moveDown": "Вниз",
+
+  "courses.watchDone": "Просмотрено ✓",
+  "courses.watchToUnlock": "Посмотрите 90% видео, чтобы открыть",
 };
 
 const kk: Dict = {
@@ -603,6 +693,51 @@ const kk: Dict = {
   "toast.courseDone": "Курс аяқталды! Сертификат берілді 🎉",
   "toast.adminSaved": "Сақталды",
   "toast.adminDeleted": "Жойылды",
+
+  "nav.leaderboard": "Рейтинг",
+  "nav.mentor": "Ментор",
+
+  "auth.roleLabel": "Мен қосыламын",
+  "auth.roleStudent": "Оқушы",
+  "auth.roleStudentDesc": "Оқу және мүмкіндіктер табу",
+  "auth.roleMentor": "Ментор",
+  "auth.roleMentorDesc": "Курстар жасау және жариялау",
+
+  "tgLogin.or": "немесе",
+  "tgLogin.button": "Telegram арқылы кіру",
+  "tgLogin.waiting": "Telegram күтілуде…",
+  "tgLogin.hint": "Ашылған ботта «Start» басып, осы бетке оралыңыз.",
+  "tgLogin.expired": "Сілтеме ескірді. Қайта көріңіз.",
+  "tgLogin.timeout": "Уақыт бітті. Қайта көріңіз.",
+
+  "leaderboard.title": "Рейтинг",
+  "leaderboard.subtitle": "Оқу прогресі бойынша үздік оқушылар",
+  "leaderboard.empty": "Әзірге ешкім жоқ — сабақты аяқтап, осында шығыңыз!",
+  "leaderboard.points": "ұпай",
+  "leaderboard.you": "Сіз",
+  "leaderboard.lessons": "сабақ",
+  "leaderboard.formula": "Ұпай = аяқталған сабақтар × 10 + сертификаттар × 100",
+
+  "mentor.title": "Ментор кабинеті",
+  "mentor.subtitle": "Курстарыңызды жасаңыз және басқарыңыз",
+  "mentor.myCourses": "Менің курстарым",
+  "mentor.students": "Оқушылар",
+  "mentor.empty": "Сіз әлі курс жарияламадыңыз.",
+
+  "admin.addLesson": "Сабақ қосу",
+  "admin.noLessons": "Сабақтар жоқ. Біріншісін қосыңыз.",
+  "admin.lessonTitle": "Сабақ атауы",
+  "admin.lessonContent": "Сабақ мазмұны / жазбалар",
+  "admin.videoLabel": "Бейне — сілтеме қойыңыз немесе файл жүктеңіз",
+  "admin.uploadVideo": "Жүктеу",
+  "admin.uploading": "Жүктелуде…",
+  "admin.videoUploaded": "Бейне жүктелді",
+  "admin.videoUploadFailed": "Жүктеу сәтсіз",
+  "admin.notVideo": "Бейнефайл таңдаңыз.",
+  "admin.moveDown": "Төмен",
+
+  "courses.watchDone": "Көрілді ✓",
+  "courses.watchToUnlock": "Ашу үшін бейненің 90%-ын қараңыз",
 };
 
 const DICTS: Record<Lang, Dict> = { en, ru, kk };
