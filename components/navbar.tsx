@@ -67,7 +67,7 @@ export function Navbar() {
         <Link href="/" className="flex items-center gap-2 font-bold">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/generated/logo-emblem.png"
+            src="/generated/logo-emblem.webp"
             alt="Mentoria"
             className="h-9 w-9 object-contain drop-shadow-[0_2px_8px_color-mix(in_srgb,var(--brand-chrome)_45%,transparent)]"
           />

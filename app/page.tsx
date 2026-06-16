@@ -39,7 +39,7 @@ export default function Home() {
         {/* liquid-chrome background wash (full-bleed behind the glass panel) */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="/generated/hero-liquid.png"
+          src="/generated/hero-liquid.webp"
           alt=""
           aria-hidden
           className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-45 blur-xl [mask-image:linear-gradient(to_bottom,#000_60%,transparent)]"
@@ -53,19 +53,19 @@ export default function Home() {
             {/* emblem crest floating on the panel edge */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/generated/logo-emblem.png"
+              src="/generated/logo-emblem.webp"
               alt="Mentoria"
               className="absolute -top-11 left-1/2 h-22 w-22 -translate-x-1/2 animate-chrome-glow object-contain"
             />
             {/* corner decorations — anchored to all four panel corners (symmetric) */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/generated/butterfly.png" alt="" aria-hidden className="pointer-events-none absolute -left-8 -top-7 hidden h-20 w-20 -scale-x-100 animate-float drop-shadow-xl md:block" style={{ animationDelay: "0.9s" }} />
+            <img src="/generated/butterfly.webp" alt="" aria-hidden className="pointer-events-none absolute -left-8 -top-7 hidden h-20 w-20 -scale-x-100 animate-float drop-shadow-xl md:block" style={{ animationDelay: "0.9s" }} />
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/generated/sparkle-1.png" alt="" aria-hidden className="pointer-events-none absolute -right-5 -top-6 h-16 w-16 animate-float drop-shadow-lg sm:-right-8" />
+            <img src="/generated/sparkle-1.webp" alt="" aria-hidden className="pointer-events-none absolute -right-5 -top-6 h-16 w-16 animate-float drop-shadow-lg sm:-right-8" />
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/generated/butterfly.png" alt="" aria-hidden className="pointer-events-none absolute -bottom-8 -right-8 hidden h-24 w-24 animate-float drop-shadow-xl md:block" style={{ animationDelay: "1.2s" }} />
+            <img src="/generated/butterfly.webp" alt="" aria-hidden className="pointer-events-none absolute -bottom-8 -right-8 hidden h-24 w-24 animate-float drop-shadow-xl md:block" style={{ animationDelay: "1.2s" }} />
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/generated/sparkle-2.png" alt="" aria-hidden className="pointer-events-none absolute -bottom-7 -left-7 hidden h-16 w-16 animate-float drop-shadow-lg sm:block" style={{ animationDelay: "0.6s" }} />
+            <img src="/generated/sparkle-2.webp" alt="" aria-hidden className="pointer-events-none absolute -bottom-7 -left-7 hidden h-16 w-16 animate-float drop-shadow-lg sm:block" style={{ animationDelay: "0.6s" }} />
 
             <div className="mt-6">
               <Badge tone="primary" className="mb-5">
