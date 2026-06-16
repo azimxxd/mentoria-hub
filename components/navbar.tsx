@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
-import { GraduationCap, LayoutDashboard, LogOut, Map, Menu, Shield, Trophy, Users, X } from "lucide-react";
+import { LayoutDashboard, LogOut, Map, Menu, Shield, Trophy, Users, X } from "lucide-react";
 import { useT } from "@/lib/i18n";
 import { useHydrated, useStore } from "@/lib/store";
 import { ThemeToggle } from "./theme-toggle";
@@ -65,9 +65,12 @@ export function Navbar() {
     <header className="sticky top-0 z-40 border-b border-border glass">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 px-4">
         <Link href="/" className="flex items-center gap-2 font-bold">
-          <span className="grid h-9 w-9 place-items-center rounded-[var(--radius-md)] text-primary-foreground [background:linear-gradient(135deg,var(--primary),var(--violet))] shadow-sm shadow-primary/30">
-            <GraduationCap className="h-5 w-5" />
-          </span>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/generated/logo-emblem.png"
+            alt="Mentoria"
+            className="h-9 w-9 object-contain drop-shadow-[0_2px_8px_color-mix(in_srgb,var(--brand-chrome)_45%,transparent)]"
+          />
           <span className="text-lg tracking-tight">Mentoria<span className="gradient-text"> Hub</span></span>
         </Link>
 

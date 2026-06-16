@@ -9,9 +9,10 @@ type ButtonSize = "sm" | "md" | "lg" | "icon";
 
 const buttonVariants: Record<ButtonVariant, string> = {
   primary:
-    "text-primary-foreground shadow-sm shadow-primary/25 [background:linear-gradient(180deg,color-mix(in_srgb,var(--primary)_92%,white),var(--primary))] hover:shadow-md hover:shadow-primary/30 hover:brightness-[1.05]",
-  secondary: "bg-secondary text-secondary-foreground hover:brightness-[1.03]",
-  outline: "border border-border bg-card text-foreground hover:bg-muted hover:border-primary/40",
+    "text-white font-bold uppercase tracking-wide shadow-sm shadow-primary/25 [background:linear-gradient(120deg,var(--brand-chrome),var(--violet)_45%,var(--brand-lavender))] hover:scale-[1.03] hover:shadow-[0_0_18px_color-mix(in_srgb,var(--brand-chrome)_55%,transparent)] hover:brightness-[1.04]",
+  secondary:
+    "border border-primary/30 bg-secondary/60 text-secondary-foreground hover:bg-secondary hover:border-primary/50",
+  outline: "border border-primary/30 bg-card text-foreground hover:bg-muted hover:border-primary/50",
   ghost: "text-foreground hover:bg-muted",
   danger: "bg-danger text-white hover:brightness-105",
 };
@@ -49,7 +50,7 @@ export function Card({ className, ...props }: React.HTMLAttributes<HTMLDivElemen
   return (
     <div
       className={cn(
-        "rounded-[var(--radius-lg)] border border-border bg-card text-card-foreground shadow-sm shadow-black/[0.03]",
+        "rounded-[var(--radius-xl)] border border-primary/10 bg-card/60 text-card-foreground shadow-sm shadow-primary/[0.05] backdrop-blur-md",
         className,
       )}
       {...props}
@@ -91,7 +92,7 @@ export function Input({ className, ...props }: React.InputHTMLAttributes<HTMLInp
   return (
     <input
       className={cn(
-        "h-10 w-full rounded-[var(--radius-md)] border border-input bg-card px-3 text-sm outline-none transition placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:border-primary/40",
+        "h-10 w-full rounded-[var(--radius-lg)] border border-input bg-card/60 px-3 text-sm outline-none transition placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:border-transparent",
         className,
       )}
       {...props}
@@ -103,7 +104,7 @@ export function Textarea({ className, ...props }: React.TextareaHTMLAttributes<H
   return (
     <textarea
       className={cn(
-        "min-h-24 w-full rounded-[var(--radius-md)] border border-input bg-card px-3 py-2 text-sm outline-none transition placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:border-primary/40",
+        "min-h-24 w-full rounded-[var(--radius-lg)] border border-input bg-card/60 px-3 py-2 text-sm outline-none transition placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:border-transparent",
         className,
       )}
       {...props}
@@ -115,7 +116,7 @@ export function Select({ className, ...props }: React.SelectHTMLAttributes<HTMLS
   return (
     <select
       className={cn(
-        "h-10 w-full rounded-[var(--radius-md)] border border-input bg-card px-3 text-sm outline-none transition focus-visible:ring-2 focus-visible:ring-ring focus-visible:border-primary/40",
+        "h-10 w-full rounded-[var(--radius-lg)] border border-input bg-card/60 px-3 text-sm outline-none transition focus-visible:ring-2 focus-visible:ring-ring focus-visible:border-transparent",
         className,
       )}
       {...props}

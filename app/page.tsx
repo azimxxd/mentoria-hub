@@ -34,48 +34,79 @@ export default function Home() {
 
   return (
     <div>
-      {/* Hero */}
+      {/* Hero — Liquid Glass */}
       <section className="relative overflow-hidden gradient-hero">
+        {/* liquid-chrome background wash (full-bleed behind the glass panel) */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/generated/hero-liquid.png"
+          alt=""
+          aria-hidden
+          className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-45 blur-xl [mask-image:linear-gradient(to_bottom,#000_60%,transparent)]"
+        />
         <div className="pointer-events-none absolute inset-0 grid-bg" aria-hidden />
-        <div className="relative mx-auto max-w-7xl px-4 pb-16 pt-16 sm:pt-24">
-          <div className="mx-auto max-w-3xl text-center animate-fade-up">
-            <Badge tone="primary" className="mb-5">
-              <Sparkles className="h-3.5 w-3.5" /> {t("hero.badge")}
-            </Badge>
-            <h1 className="text-4xl font-extrabold leading-tight tracking-tight sm:text-6xl">
-              {t("hero.title")}
-            </h1>
-            <p className="mx-auto mt-5 max-w-2xl text-lg text-muted-foreground">{t("hero.subtitle")}</p>
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-              <Link href="/opportunities">
-                <Button size="lg">
-                  {t("hero.ctaFind")} <ArrowRight className="h-4 w-4" />
-                </Button>
-              </Link>
-              <Link href="/courses">
-                <Button size="lg" variant="outline">
-                  {t("hero.ctaLearn")}
-                </Button>
-              </Link>
-              <Link href="/signup">
-                <Button size="lg" variant="secondary">
-                  {t("hero.ctaJoin")}
-                </Button>
-              </Link>
-            </div>
+        <div className="pointer-events-none absolute inset-0 halftone opacity-[0.06]" aria-hidden />
 
-            <div className="mx-auto mt-12 grid max-w-lg grid-cols-3 gap-4">
-              {[
-                { v: `${oppCount}+`, l: t("hero.statOpps") },
-                { v: `${courseCount}`, l: t("hero.statCourses") },
-                { v: "3", l: t("hero.statLangs") },
-              ].map((s) => (
-                <Card key={s.l} className="glass px-3 py-4">
-                  <p className="text-2xl font-bold gradient-text">{s.v}</p>
-                  <p className="text-xs text-muted-foreground">{s.l}</p>
-                </Card>
-              ))}
+        <div className="relative mx-auto max-w-6xl px-4 pb-20 pt-20 sm:pt-28">
+          {/* Liquid glass panel keeps text on a readable frosted surface */}
+          <div className="relative mx-auto max-w-3xl rounded-[2rem] border border-white/50 bg-card/45 px-6 py-12 text-center shadow-[0_24px_70px_-24px_color-mix(in_srgb,var(--brand-purple)_45%,transparent)] backdrop-blur-2xl animate-fade-up sm:px-10 dark:border-white/10">
+            {/* emblem crest floating on the panel edge */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/generated/logo-emblem.png"
+              alt="Mentoria"
+              className="absolute -top-11 left-1/2 h-22 w-22 -translate-x-1/2 animate-chrome-glow object-contain"
+            />
+            {/* corner decorations — anchored to all four panel corners (symmetric) */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/generated/butterfly.png" alt="" aria-hidden className="pointer-events-none absolute -left-8 -top-7 hidden h-20 w-20 -scale-x-100 animate-float drop-shadow-xl md:block" style={{ animationDelay: "0.9s" }} />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/generated/sparkle-1.png" alt="" aria-hidden className="pointer-events-none absolute -right-5 -top-6 h-16 w-16 animate-float drop-shadow-lg sm:-right-8" />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/generated/butterfly.png" alt="" aria-hidden className="pointer-events-none absolute -bottom-8 -right-8 hidden h-24 w-24 animate-float drop-shadow-xl md:block" style={{ animationDelay: "1.2s" }} />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/generated/sparkle-2.png" alt="" aria-hidden className="pointer-events-none absolute -bottom-7 -left-7 hidden h-16 w-16 animate-float drop-shadow-lg sm:block" style={{ animationDelay: "0.6s" }} />
+
+            <div className="mt-6">
+              <Badge tone="primary" className="mb-5">
+                <Sparkles className="h-3.5 w-3.5" /> {t("hero.badge")}
+              </Badge>
+              <h1 className="text-balance text-[clamp(1.5rem,3.6vw,2.5rem)] font-extrabold leading-[1.12] tracking-tight">
+                <span className="gradient-text">{t("hero.title")}</span>
+              </h1>
+              <p className="mx-auto mt-5 max-w-xl text-lg text-foreground/75">{t("hero.subtitle")}</p>
+              <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+                <Link href="/opportunities">
+                  <Button size="lg">
+                    {t("hero.ctaFind")} <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </Link>
+                <Link href="/courses">
+                  <Button size="lg" variant="outline">
+                    {t("hero.ctaLearn")}
+                  </Button>
+                </Link>
+                <Link href="/signup">
+                  <Button size="lg" variant="secondary">
+                    {t("hero.ctaJoin")}
+                  </Button>
+                </Link>
+              </div>
             </div>
+          </div>
+
+          {/* Stats below the panel */}
+          <div className="mx-auto mt-8 grid max-w-lg grid-cols-3 gap-4 animate-fade-up">
+            {[
+              { v: `${oppCount}+`, l: t("hero.statOpps") },
+              { v: `${courseCount}`, l: t("hero.statCourses") },
+              { v: "3", l: t("hero.statLangs") },
+            ].map((s) => (
+              <Card key={s.l} className="px-3 py-4 text-center">
+                <p className="text-2xl font-bold gradient-text">{s.v}</p>
+                <p className="text-xs text-muted-foreground">{s.l}</p>
+              </Card>
+            ))}
           </div>
         </div>
       </section>

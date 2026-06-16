@@ -4,83 +4,94 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* ====================================================================
+   MENTORIA — Y2K / Liquid Chrome design tokens
+   Palette: rose-white bg, lavenders, brand purple, chrome pink-purple
+   ==================================================================== */
 :root {
-  --background: #f6f7fc;
-  --foreground: #0e1124;
+  --background: #fdf4f6;        /* Нежнейший розово-белый фон */
+  --foreground: #2c0f3d;        /* Глубокий читаемый фиолетовый текст */
   --card: #ffffff;
-  --card-foreground: #0e1124;
+  --card-foreground: #2c0f3d;
   --popover: #ffffff;
-  --popover-foreground: #0e1124;
-  --muted: #eef0f7;
-  --muted-foreground: #5a6076;
-  --border: #e6e8f2;
-  --input: #e6e8f2;
-  --primary: #4f46e5;
+  --popover-foreground: #2c0f3d;
+  --muted: #f1e3f5;            /* Приглушённый лавандовый */
+  --muted-foreground: #6b4d7d;
+  --border: #e6d1ee;
+  --input: #e6d1ee;
+  --primary: #884ea0;         /* Основной фиолетовый */
   --primary-foreground: #ffffff;
-  --secondary: #ebeaff;
-  --secondary-foreground: #4338ca;
-  --accent: #eef0f7;
-  --accent-foreground: #0e1124;
-  --ring: #6366f1;
+  --secondary: #f1e3f5;       /* Лавандовый для плашек */
+  --secondary-foreground: #7a3e92;
+  --accent: #f1e3f5;
+  --accent-foreground: #884ea0;
+  --ring: #d279e5;            /* Хром-акцент */
   --destructive: #e11d48;
-  --success: #059669;
+  --success: #0f9d6b;
   --warning: #d97706;
   --danger: #e11d48;
-  --info: #0284c7;
-  --violet: #7c3aed;
-  --radius: 0.9rem;
-  --chart-1: #4f46e5;
-  --chart-2: #0ea5e9;
-  --chart-3: #059669;
-  --chart-4: #d97706;
-  --chart-5: #db2777;
+  --info: #b14fd8;
+  --violet: #d279e5;          /* Хромированный розово-пурпурный */
+  --radius: 1rem;
+  --chart-1: #884ea0;
+  --chart-2: #d279e5;
+  --chart-3: #d7bde2;
+  --chart-4: #b14fd8;
+  --chart-5: #6f3a88;
   --sidebar: #ffffff;
-  --sidebar-foreground: #0e1124;
-  --sidebar-primary: #4f46e5;
+  --sidebar-foreground: #3d1a4f;
+  --sidebar-primary: #884ea0;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #eef0f7;
-  --sidebar-accent-foreground: #0e1124;
-  --sidebar-border: #e6e8f2;
-  --sidebar-ring: #6366f1;
+  --sidebar-accent: #f1e3f5;
+  --sidebar-accent-foreground: #884ea0;
+  --sidebar-border: #e6d1ee;
+  --sidebar-ring: #d279e5;
+
+  /* Mentoria brand tokens (raw palette) */
+  --brand-bg: #fdf4f6;
+  --brand-lavender-light: #f1e3f5;
+  --brand-lavender: #d7bde2;
+  --brand-purple: #884ea0;
+  --brand-chrome: #d279e5;
 }
 
 .dark {
-  --background: #090a12;
-  --foreground: #e9eaf3;
-  --card: #12141f;
-  --card-foreground: #e9eaf3;
-  --popover: #12141f;
-  --popover-foreground: #e9eaf3;
-  --muted: #1b1e2e;
-  --muted-foreground: #9aa1b8;
-  --border: #242838;
-  --input: #262a3b;
-  --primary: #818cf8;
-  --primary-foreground: #0a0b14;
-  --secondary: #20223a;
-  --secondary-foreground: #c7d2fe;
-  --accent: #1b1e2e;
-  --accent-foreground: #e9eaf3;
-  --ring: #818cf8;
+  --background: #150a1e;        /* Глубокий фиолетово-чёрный */
+  --foreground: #f4e8f9;
+  --card: #1f0f2b;
+  --card-foreground: #f4e8f9;
+  --popover: #1f0f2b;
+  --popover-foreground: #f4e8f9;
+  --muted: #2b1839;
+  --muted-foreground: #bca0c9;
+  --border: #3a2350;
+  --input: #3d2654;
+  --primary: #d279e5;          /* Хром ярче в темноте */
+  --primary-foreground: #1a0a24;
+  --secondary: #2e1a3e;
+  --secondary-foreground: #ecc9f5;
+  --accent: #2b1839;
+  --accent-foreground: #f4e8f9;
+  --ring: #d279e5;
   --destructive: #fb7185;
   --success: #34d399;
   --warning: #fbbf24;
   --danger: #fb7185;
-  --info: #38bdf8;
-  --violet: #a78bfa;
-  --chart-1: #818cf8;
-  --chart-2: #38bdf8;
-  --chart-3: #34d399;
-  --chart-4: #fbbf24;
-  --chart-5: #f472b6;
-  --sidebar: #12141f;
-  --sidebar-foreground: #e9eaf3;
-  --sidebar-primary: #818cf8;
-  --sidebar-primary-foreground: #0a0b14;
-  --sidebar-accent: #1b1e2e;
-  --sidebar-accent-foreground: #e9eaf3;
-  --sidebar-border: #242838;
-  --sidebar-ring: #818cf8;
+  --info: #e48bf0;
+  --violet: #e48bf0;
+  --chart-1: #d279e5;
+  --chart-2: #e48bf0;
+  --chart-3: #d7bde2;
+  --chart-4: #b14fd8;
+  --chart-5: #a06bc0;
+  --sidebar: #1f0f2b;
+  --sidebar-foreground: #f4e8f9;
+  --sidebar-primary: #d279e5;
+  --sidebar-primary-foreground: #1a0a24;
+  --sidebar-accent: #2b1839;
+  --sidebar-accent-foreground: #f4e8f9;
+  --sidebar-border: #3a2350;
+  --sidebar-ring: #d279e5;
 }
 
 @theme inline {
@@ -120,13 +131,24 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Mentoria brand colors exposed as Tailwind utilities (bg-brand-purple …) */
+  --color-brand-bg: var(--brand-bg);
+  --color-brand-lavender-light: var(--brand-lavender-light);
+  --color-brand-lavender: var(--brand-lavender);
+  --color-brand-purple: var(--brand-purple);
+  --color-brand-chrome: var(--brand-chrome);
+
   --font-sans: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
-  --font-heading: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
-  --radius-sm: calc(var(--radius) - 0.35rem);
-  --radius-md: calc(var(--radius) - 0.2rem);
+  --font-heading: var(--font-display), var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-display), var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  --radius-sm: calc(var(--radius) - 0.45rem);
+  --radius-md: calc(var(--radius) - 0.3rem);
   --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 0.3rem);
-  --radius-2xl: calc(var(--radius) + 0.7rem);
+  --radius-xl: calc(var(--radius) + 0.35rem);
+  --radius-2xl: calc(var(--radius) + 0.8rem);
+
+  --animate-chrome-glow: chrome-glow 3s ease infinite;
 }
 
 @layer base {
@@ -140,6 +162,11 @@
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
   }
+  /* Y2K display typography on all headings */
+  h1, h2, h3, h4 {
+    font-family: var(--font-display), var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+    letter-spacing: -0.02em;
+  }
   button:not(:disabled),
   [role="button"]:not(:disabled) {
     cursor: pointer;
@@ -149,41 +176,73 @@
 /* ---------- Premium visual utilities ---------- */
 .gradient-hero {
   background:
-    radial-gradient(60rem 30rem at 8% -8%, color-mix(in srgb, var(--primary) 22%, transparent), transparent 60%),
-    radial-gradient(50rem 28rem at 100% 0%, color-mix(in srgb, var(--info) 18%, transparent), transparent 55%),
-    radial-gradient(45rem 26rem at 50% 120%, color-mix(in srgb, var(--violet) 16%, transparent), transparent 60%);
+    radial-gradient(60rem 30rem at 8% -8%, color-mix(in srgb, var(--brand-chrome) 28%, transparent), transparent 60%),
+    radial-gradient(50rem 28rem at 100% 0%, color-mix(in srgb, var(--brand-lavender) 40%, transparent), transparent 55%),
+    radial-gradient(45rem 26rem at 50% 120%, color-mix(in srgb, var(--primary) 20%, transparent), transparent 60%);
 }
 .gradient-text {
-  background: linear-gradient(100deg, var(--primary), var(--violet) 55%, var(--info));
+  /* Anchored in readable tones (dark-on-light / light-on-dark), chrome only as a tail accent */
+  background: linear-gradient(
+    100deg,
+    var(--primary) 0%,
+    color-mix(in srgb, var(--primary) 72%, var(--foreground)) 48%,
+    var(--brand-chrome) 115%
+  );
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
 }
+/* Liquid-chrome metallic text sheen */
+.chrome-text {
+  background: linear-gradient(
+    180deg,
+    #ffffff 0%,
+    var(--brand-chrome) 35%,
+    var(--primary) 60%,
+    #ffffff 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 1px 1px color-mix(in srgb, var(--primary) 30%, transparent));
+}
 .grid-bg {
   background-image:
-    linear-gradient(to right, color-mix(in srgb, var(--foreground) 5%, transparent) 1px, transparent 1px),
-    linear-gradient(to bottom, color-mix(in srgb, var(--foreground) 5%, transparent) 1px, transparent 1px);
+    linear-gradient(to right, color-mix(in srgb, var(--primary) 8%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in srgb, var(--primary) 8%, transparent) 1px, transparent 1px);
   background-size: 38px 38px;
   -webkit-mask-image: radial-gradient(60% 60% at 50% 30%, #000 0%, transparent 75%);
   mask-image: radial-gradient(60% 60% at 50% 30%, #000 0%, transparent 75%);
 }
+/* Y2K halftone dot grid */
+.halftone {
+  background-image: radial-gradient(var(--brand-purple) 1px, transparent 1px);
+  background-size: 16px 16px;
+  opacity: 0.1;
+}
 .glass {
-  background: color-mix(in srgb, var(--card) 70%, transparent);
-  backdrop-filter: blur(14px) saturate(140%);
-  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  background: color-mix(in srgb, var(--card) 55%, transparent);
+  backdrop-filter: blur(14px) saturate(150%);
+  -webkit-backdrop-filter: blur(14px) saturate(150%);
 }
 .card-hover {
   transition: transform .22s cubic-bezier(.2,.7,.3,1), box-shadow .22s ease, border-color .22s ease;
 }
 .card-hover:hover {
   transform: translateY(-4px);
-  box-shadow: 0 18px 40px -18px color-mix(in srgb, var(--primary) 40%, transparent);
-  border-color: color-mix(in srgb, var(--primary) 40%, var(--border));
+  box-shadow: 0 18px 40px -18px color-mix(in srgb, var(--brand-chrome) 50%, transparent);
+  border-color: color-mix(in srgb, var(--brand-chrome) 45%, var(--border));
 }
 .ring-glow {
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--primary) 25%, transparent),
-    0 8px 30px -8px color-mix(in srgb, var(--primary) 45%, transparent);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--brand-chrome) 30%, transparent),
+    0 8px 30px -8px color-mix(in srgb, var(--brand-chrome) 50%, transparent);
 }
+
+@keyframes chrome-glow {
+  0%, 100% { filter: drop-shadow(0 0 2px rgba(210, 121, 229, 0.4)); }
+  50% { filter: drop-shadow(0 0 12px rgba(210, 121, 229, 0.8)); }
+}
+.animate-chrome-glow { animation: chrome-glow 3s ease infinite; }
 
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(14px); }
@@ -210,7 +269,7 @@
 
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-thumb {
-  background: color-mix(in srgb, var(--muted-foreground) 35%, transparent);
+  background: color-mix(in srgb, var(--brand-chrome) 40%, transparent);
   border-radius: 999px;
 }
-::-webkit-scrollbar-thumb:hover { background: color-mix(in srgb, var(--muted-foreground) 55%, transparent); }
+::-webkit-scrollbar-thumb:hover { background: color-mix(in srgb, var(--brand-chrome) 60%, transparent); }
