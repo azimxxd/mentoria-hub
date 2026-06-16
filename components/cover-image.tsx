@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { coverForTitle } from "@/lib/covers";
 
 /**
  * Cover image for a course / opportunity. Loads /covers/<id>.png and, if the
@@ -32,7 +33,9 @@ export function CoverImage({
   // Admin-uploaded data URLs can't go through the Next/Image optimizer, so render
   // them with a plain <img>. Bundled covers still use the optimized <Image>.
   const isDataUrl = !!src && src.startsWith("data:");
-  const resolvedSrc = src || `/covers/${id}.png`;
+  // Prefer an explicit src; otherwise resolve a bundled cover by title (works in
+  // both local and Supabase mode, where ids differ); finally fall back to id.
+  const resolvedSrc = src || coverForTitle(alt) || `/covers/${id}.png`;
 
   return (
     <div className={cn("relative overflow-hidden bg-muted", className)}>
