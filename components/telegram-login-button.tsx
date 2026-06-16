@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2, Send } from "lucide-react";
-import { getSupabase, isSupabaseConfigured } from "@/lib/supabase";
+import { getSupabase } from "@/lib/supabase";
 import { useStore } from "@/lib/store";
 import { useT } from "@/lib/i18n";
 import { Button } from "./ui";
@@ -82,8 +82,8 @@ export function TelegramLoginButton() {
     }
   }
 
-  if (!isSupabaseConfigured) return null;
-
+  // Always render the button so it's visible everywhere. If the backend isn't
+  // configured, the click surfaces a clear error instead of hiding silently.
   return (
     <div className="mt-4">
       <div className="mb-3 flex items-center gap-3 text-xs text-muted-foreground">
