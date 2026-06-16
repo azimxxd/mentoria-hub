@@ -41,7 +41,14 @@ interface StoreState {
   _loadUser: (userId: string, email: string) => Promise<void>;
 
   // auth
-  signup: (email: string, password: string, name: string, role?: Role) => Promise<Result>;
+  signup: (
+    email: string,
+    password: string,
+    firstName: string,
+    lastName: string,
+    nickname: string,
+    role?: Role,
+  ) => Promise<Result>;
   login: (email: string, password: string) => Promise<Result>;
   logout: () => Promise<void>;
   currentUser: () => User | null;
@@ -193,17 +200,31 @@ export const useStore = create<StoreState>()(
       },
 
       /* --------------------------- auth --------------------------- */
-      signup: async (email, password, name, role = "student") => {
+      signup: async (email, password, firstName, lastName, nickname, role = "student") => {
         email = email.trim().toLowerCase();
-        if (!email || !password || !name) return { ok: false, error: "All fields are required." };
+        firstName = firstName.trim();
+        lastName = lastName.trim();
+        nickname = nickname.trim();
+        if (!email || !password || !firstName || !lastName)
+          return { ok: false, error: "Email, password, first name and last name are required." };
         // Only student/mentor can self-register; admin is assigned manually.
         const safeRole: Role = role === "mentor" ? "mentor" : "student";
+        // Display name = nickname when provided, otherwise the real full name.
+        const displayName = nickname || `${firstName} ${lastName}`.trim();
 
         if (get().syncMode === "supabase") {
           const { data, error } = await sb().auth.signUp({
             email,
             password,
-            options: { data: { full_name: name.trim(), role: safeRole } },
+            options: {
+              data: {
+                full_name: displayName,
+                first_name: firstName,
+                last_name: lastName,
+                nickname,
+                role: safeRole,
+              },
+            },
           });
           if (error) return { ok: false, error: error.message };
           if (data.session) await get()._loadUser(data.session.user.id, email);
@@ -217,7 +238,10 @@ export const useStore = create<StoreState>()(
           id: uid("user"),
           email,
           password,
-          name: name.trim(),
+          name: displayName,
+          firstName,
+          lastName,
+          nickname: nickname || undefined,
           role: safeRole,
           onboarded: false,
           interests: [],

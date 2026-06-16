@@ -125,7 +125,14 @@ export interface User {
   id: string;
   email: string;
   password: string;
+  /** Display name shown across the app: nickname if set, otherwise "First Last". */
   name: string;
+  /** Real first name captured at signup. */
+  firstName?: string;
+  /** Real last name captured at signup. */
+  lastName?: string;
+  /** Optional public handle; when set it becomes the display name. */
+  nickname?: string;
   role: Role;
   onboarded: boolean;
   grade?: number;

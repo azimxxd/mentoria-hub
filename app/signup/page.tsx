@@ -14,7 +14,9 @@ export default function SignupPage() {
   const t = useT();
   const router = useRouter();
   const signup = useStore((s) => s.signup);
-  const [name, setName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [nickname, setNickname] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState<Role>("student");
@@ -22,7 +24,7 @@ export default function SignupPage() {
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
-    const res = await signup(email, password, name, role);
+    const res = await signup(email, password, firstName, lastName, nickname, role);
     if (!res.ok) {
       setError(res.error);
       return;
@@ -63,9 +65,20 @@ export default function SignupPage() {
         </div>
 
         <form onSubmit={submit} className="mt-5 space-y-4">
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label htmlFor="firstName">{t("auth.firstName")}</Label>
+              <Input id="firstName" value={firstName} onChange={(e) => setFirstName(e.target.value)} placeholder="Aru" autoComplete="given-name" required />
+            </div>
+            <div>
+              <Label htmlFor="lastName">{t("auth.lastName")}</Label>
+              <Input id="lastName" value={lastName} onChange={(e) => setLastName(e.target.value)} placeholder="Student" autoComplete="family-name" required />
+            </div>
+          </div>
           <div>
-            <Label htmlFor="name">{t("auth.name")}</Label>
-            <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Aru Student" required />
+            <Label htmlFor="nickname">{t("auth.nickname")}</Label>
+            <Input id="nickname" value={nickname} onChange={(e) => setNickname(e.target.value)} placeholder="aru_07" autoComplete="nickname" />
+            <p className="mt-1 text-xs text-muted-foreground">{t("auth.nicknameHint")}</p>
           </div>
           <div>
             <Label htmlFor="email">{t("auth.email")}</Label>
