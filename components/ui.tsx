@@ -9,7 +9,7 @@ type ButtonSize = "sm" | "md" | "lg" | "icon";
 
 const buttonVariants: Record<ButtonVariant, string> = {
   primary:
-    "text-white font-bold uppercase tracking-wide shadow-sm shadow-primary/25 [background:linear-gradient(120deg,var(--brand-chrome),var(--violet)_45%,var(--brand-lavender))] hover:scale-[1.03] hover:shadow-[0_0_18px_color-mix(in_srgb,var(--brand-chrome)_55%,transparent)] hover:brightness-[1.04]",
+    "btn-liquid text-white font-bold uppercase tracking-wide [background:linear-gradient(120deg,var(--brand-chrome),var(--violet)_45%,var(--brand-lavender))]",
   secondary:
     "border border-primary/30 bg-secondary/60 text-secondary-foreground hover:bg-secondary hover:border-primary/50",
   outline: "border border-primary/30 bg-card text-foreground hover:bg-muted hover:border-primary/50",

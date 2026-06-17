@@ -244,6 +244,70 @@
 }
 .animate-chrome-glow { animation: chrome-glow 3s ease infinite; }
 
+/* Liquid Chrome button — gel gloss, deep-chrome reveal, mercury-drop morph on hover */
+.btn-liquid {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  transition:
+    transform .5s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+    border-radius .5s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+    box-shadow .4s ease;
+  box-shadow:
+    0 4px 15px color-mix(in srgb, var(--brand-purple) 18%, transparent),
+    inset 0 2px 4px rgba(255, 255, 255, 0.45);
+}
+/* Deep chrome gradient revealed on hover */
+.btn-liquid::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, var(--brand-chrome) 0%, var(--violet) 40%, var(--brand-purple) 80%, #5b2c6f 100%);
+  opacity: 0;
+  transition: opacity .4s ease;
+  z-index: -1;
+}
+/* Glossy gel highlight along the top */
+.btn-liquid::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 8%;
+  right: 8%;
+  height: 35%;
+  border-radius: 999px;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0) 100%);
+  opacity: .35;
+  transition: all .4s ease;
+  pointer-events: none;
+  z-index: -1;
+}
+.btn-liquid:hover {
+  transform: scale(1.05) translateY(-3px);
+  border-radius: 40px 26px 40px 26px / 26px 40px 26px 40px;
+  box-shadow:
+    0 14px 28px color-mix(in srgb, var(--brand-chrome) 42%, transparent),
+    0 4px 10px color-mix(in srgb, var(--brand-purple) 22%, transparent),
+    inset 0 5px 12px rgba(255, 255, 255, 0.6),
+    inset 0 -4px 12px rgba(0, 0, 0, 0.28);
+}
+.btn-liquid:hover::before { opacity: 1; }
+.btn-liquid:hover::after {
+  height: 42%;
+  opacity: .85;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0.1) 100%);
+}
+.btn-liquid:active {
+  transform: scale(.98) translateY(0);
+  box-shadow:
+    0 4px 8px color-mix(in srgb, var(--brand-chrome) 28%, transparent),
+    inset 0 2px 6px rgba(0, 0, 0, 0.32);
+}
+@media (prefers-reduced-motion: reduce) {
+  .btn-liquid { transition: box-shadow .2s ease; }
+  .btn-liquid:hover { transform: none; border-radius: inherit; }
+}
+
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(14px); }
   to { opacity: 1; transform: translateY(0); }
