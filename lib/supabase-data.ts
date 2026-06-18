@@ -279,10 +279,20 @@ export async function dbUpsertCourse(sb: SupabaseClient, c: Course): Promise<Cou
   if (!courseData) return null;
   const courseId = String((courseData as Row).id);
 
-  // Replace lessons wholesale — simplest correct approach for the admin editor.
-  await sb.from("lessons").delete().eq("course_id", courseId);
+  // Upsert lessons PRESERVING existing ids. lesson_progress has a FK to
+  // lessons(id) with ON DELETE CASCADE, so deleting+recreating lessons on every
+  // edit would wipe all students' progress (and their points). Instead we keep
+  // existing lessons (by id), insert new ones, and delete only lessons the
+  // editor actually removed.
+  const keepIds = c.lessons.filter((l) => isUuid(l.id)).map((l) => l.id);
+  if (keepIds.length) {
+    await sb.from("lessons").delete().eq("course_id", courseId).not("id", "in", `(${keepIds.join(",")})`);
+  } else {
+    await sb.from("lessons").delete().eq("course_id", courseId);
+  }
   if (c.lessons.length) {
     const lessonRows = c.lessons.map((l, i) => ({
+      ...(isUuid(l.id) ? { id: l.id } : {}),
       course_id: courseId,
       position: i,
       title: l.title,
@@ -291,7 +301,7 @@ export async function dbUpsertCourse(sb: SupabaseClient, c: Course): Promise<Cou
       duration_min: l.durationMin,
       quiz: l.quiz,
     }));
-    await sb.from("lessons").insert(lessonRows);
+    await sb.from("lessons").upsert(lessonRows);
   }
   const { data: lessonData } = await sb.from("lessons").select("*").eq("course_id", courseId);
   return mapCourse(courseData as Row, (lessonData ?? []) as Row[]);

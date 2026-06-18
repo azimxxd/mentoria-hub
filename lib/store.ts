@@ -215,21 +215,20 @@ export const useStore = create<StoreState>()(
         const displayName = nickname || `${firstName} ${lastName}`.trim();
 
         if (get().syncMode === "supabase") {
-          const { data, error } = await sb().auth.signUp({
-            email,
-            password,
-            options: {
-              data: {
-                full_name: displayName,
-                first_name: firstName,
-                last_name: lastName,
-                nickname,
-                role: safeRole,
-              },
-            },
+          // Create the account server-side (pre-confirmed) so it works even with
+          // email confirmation enabled — then sign in. See app/api/auth/signup.
+          void displayName;
+          const res = await fetch("/api/auth/signup", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password, firstName, lastName, nickname }),
           });
+          const out = (await res.json().catch(() => ({}))) as { ok?: boolean; error?: string };
+          if (!res.ok || !out.ok) return { ok: false, error: out.error ?? "Sign up failed." };
+
+          const { data: signin, error } = await sb().auth.signInWithPassword({ email, password });
           if (error) return { ok: false, error: error.message };
-          if (data.session) await get()._loadUser(data.session.user.id, email);
+          await get()._loadUser(signin.user.id, signin.user.email ?? email);
           return { ok: true };
         }
 
