@@ -207,8 +207,10 @@ export const useStore = create<StoreState>()(
         nickname = nickname.trim();
         if (!email || !password || !firstName || !lastName)
           return { ok: false, error: "Email, password, first name and last name are required." };
-        // Only student/mentor can self-register; admin is assigned manually.
-        const safeRole: Role = role === "mentor" ? "mentor" : "student";
+        // Public signup ALWAYS creates a student. Mentor and admin accounts are
+        // provisioned by an admin (see /api/admin/create-mentor) — never self-served.
+        const safeRole: Role = "student";
+        void role;
         // Display name = nickname when provided, otherwise the real full name.
         const displayName = nickname || `${firstName} ${lastName}`.trim();
 

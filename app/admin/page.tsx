@@ -5,7 +5,9 @@ import { toast } from "sonner";
 import { BookOpen, GraduationCap, LayoutGrid, Pencil, Plus, Trash2, Users } from "lucide-react";
 import { AuthGuard } from "@/components/auth-guard";
 import { useStore } from "@/lib/store";
+import { getSupabase } from "@/lib/supabase";
 import { useT } from "@/lib/i18n";
+import type { User } from "@/lib/types";
 import { Badge, Button, Card, Dialog, Input, Label, Select, Textarea } from "@/components/ui";
 import { ImagePicker } from "@/components/image-picker";
 import { LessonEditor } from "@/components/lesson-editor";
@@ -22,7 +24,7 @@ import {
 } from "@/lib/types";
 import { uid } from "@/lib/utils";
 
-type Tab = "stats" | "opps" | "courses";
+type Tab = "stats" | "opps" | "courses" | "mentors";
 const FORMATS: OppFormat[] = ["Online", "In-person", "Hybrid"];
 const LEVELS: CourseLevel[] = ["Beginner", "Intermediate", "Advanced"];
 
@@ -42,6 +44,7 @@ function Admin() {
     { id: "stats", label: t("admin.tabStats") },
     { id: "opps", label: t("admin.tabOpps") },
     { id: "courses", label: t("admin.tabCourses") },
+    { id: "mentors", label: t("admin.tabMentors") },
   ];
 
   return (
@@ -102,6 +105,110 @@ function Admin() {
 
       {tab === "opps" && <OppsManager opportunities={opportunities} />}
       {tab === "courses" && <CoursesManager courses={courses} />}
+      {tab === "mentors" && <MentorsManager users={users} />}
+    </div>
+  );
+}
+
+/* ---------------- Mentors manager ---------------- */
+function MentorsManager({ users }: { users: User[] }) {
+  const t = useT();
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  const mentors = users.filter((u) => u.role === "mentor");
+
+  async function createMentor() {
+    setBusy(true);
+    try {
+      const sb = getSupabase();
+      const accessToken = sb ? (await sb.auth.getSession()).data.session?.access_token : undefined;
+      if (!accessToken) {
+        toast.error(t("admin.onlyAdmins"));
+        return;
+      }
+      const res = await fetch("/api/admin/create-mentor", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ accessToken, email, password, firstName, lastName }),
+      });
+      const data = (await res.json()) as { ok?: boolean; error?: string };
+      if (!res.ok || !data.ok) {
+        toast.error(data.error ?? "Could not create the mentor.");
+        return;
+      }
+      toast.success(t("admin.mentorCreated"));
+      setFirstName("");
+      setLastName("");
+      setEmail("");
+      setPassword("");
+    } catch {
+      toast.error("Could not create the mentor.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  const canSubmit = firstName.trim() && lastName.trim() && email.trim() && password.length >= 6;
+
+  return (
+    <div className="mt-6 grid gap-6 lg:grid-cols-2">
+      <Card className="p-6">
+        <h2 className="text-lg font-semibold">{t("admin.newMentor")}</h2>
+        <p className="mt-1 text-sm text-muted-foreground">{t("admin.mentorIntro")}</p>
+        <div className="mt-4 space-y-3">
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label>{t("auth.firstName")}</Label>
+              <Input value={firstName} onChange={(e) => setFirstName(e.target.value)} placeholder="Aru" />
+            </div>
+            <div>
+              <Label>{t("auth.lastName")}</Label>
+              <Input value={lastName} onChange={(e) => setLastName(e.target.value)} placeholder="Mentor" />
+            </div>
+          </div>
+          <div>
+            <Label>{t("auth.email")}</Label>
+            <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="mentor@example.com" />
+          </div>
+          <div>
+            <Label>{t("admin.mentorPassword")}</Label>
+            <Input type="text" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="At least 6 characters" />
+          </div>
+        </div>
+        <Button className="mt-4 w-full" onClick={createMentor} disabled={!canSubmit || busy}>
+          <Plus className="h-4 w-4" /> {t("admin.mentorCreate")}
+        </Button>
+      </Card>
+
+      <Card className="overflow-hidden">
+        <div className="border-b border-border p-4">
+          <h2 className="text-lg font-semibold">{t("admin.mentorList")}</h2>
+        </div>
+        {mentors.length === 0 ? (
+          <p className="p-4 text-sm text-muted-foreground">{t("admin.mentorNone")}</p>
+        ) : (
+          <table className="w-full text-sm">
+            <thead className="bg-muted text-left text-xs uppercase text-muted-foreground">
+              <tr>
+                <th className="p-3">{t("auth.name")}</th>
+                <th className="p-3">{t("auth.email")}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {mentors.map((m) => (
+                <tr key={m.id} className="border-t border-border">
+                  <td className="p-3 font-medium">{m.name}</td>
+                  <td className="p-3 text-muted-foreground">{m.email}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </Card>
     </div>
   );
 }

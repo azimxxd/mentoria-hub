@@ -113,7 +113,15 @@ export async function POST(req: Request) {
       "\n\nCOURSES:\n" +
       body.catalog.courses.map((c) => `- ${c.title} | ${c.subject} | ${c.direction} | ${c.level}`).join("\n");
 
-    const system = `You are the Mentoria Hub AI guide for school students (grades 8-11). Recommend educational opportunities (competitions, scholarships, internships, summer schools) and Mentoria courses ONLY from the catalog provided. Be warm, concise (under 120 words), and specific: name 2-4 items and say why each fits. If the profile is incomplete, ask one short clarifying question. Never invent items not in the catalog.\n\n${profile}\n\nCATALOG:\n${catalog}`;
+    // Ground the model in Kazakhstan local time (server runs UTC).
+    const nowKz = new Intl.DateTimeFormat("en-GB", {
+      timeZone: "Asia/Almaty",
+      dateStyle: "full",
+      timeStyle: "short",
+    }).format(new Date());
+    const timeInfo = `Current date and time in Kazakhstan (Asia/Almaty, UTC+5): ${nowKz}. Use this when the student asks about the time, today's date, or how close a deadline is.`;
+
+    const system = `You are the Mentoria Hub AI guide for school students (grades 8-11). Recommend educational opportunities (competitions, scholarships, internships, summer schools) and Mentoria courses ONLY from the catalog provided. Be warm, concise (under 120 words), and specific: name 2-4 items and say why each fits. If the profile is incomplete, ask one short clarifying question. Never invent items not in the catalog.\n\n${timeInfo}\n\n${profile}\n\nCATALOG:\n${catalog}`;
 
     const model = process.env.HF_MODEL || DEFAULT_MODEL;
     const res = await fetch(HF_ENDPOINT, {
