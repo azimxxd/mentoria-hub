@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { ArrowLeft, ArrowRight, CheckCircle2, Lock } from "lucide-react";
+import { ArrowLeft, ArrowRight, Award, CheckCircle2 } from "lucide-react";
 import { AuthGuard } from "@/components/auth-guard";
 import { useStore } from "@/lib/store";
 import { useT } from "@/lib/i18n";
@@ -61,22 +61,29 @@ function Lesson() {
   const next = course.lessons[idx + 1];
   const noQuiz = lesson.quiz.length === 0;
   const hasVideo = Boolean(lesson.videoUrl);
-  // Completed lessons aren't re-gated; otherwise require 90% of the video watched.
-  const videoOk = !hasVideo || done || watched >= WATCH_GATE;
-  const canComplete = (done || noQuiz || quizScore != null) && videoOk;
+  // Flow: watch the lesson → answer the quiz → continue. The quiz (when present)
+  // is the gate; the video is shown but not hard-locked (lessons can be long
+  // YouTube videos, so a strict %-watched gate would block completion).
+  const watchedEnough = watched >= WATCH_GATE;
+  const canComplete = done || noQuiz || quizScore != null;
+  const courseComplete = pct === 100;
 
   function markComplete() {
     completeLesson(courseId, lessonId, quizScore ?? 100);
-    const certs = useStore.getState().myCertificates();
-    const c = certs.find((x) => x.courseId === courseId);
-    const fullyDone = useStore.getState().courseProgressPct(courseId) === 100;
-    if (fullyDone && c) {
+    if (next) {
+      toast.success(t("toast.lessonDone"));
+      router.push(`/courses/${courseId}/lessons/${next.id}`);
+    } else {
+      // Last lesson — the "Get certificate" button appears once the course is 100%.
       toast.success(t("toast.courseDone"));
+    }
+  }
+
+  function openCertificate() {
+    const c = useStore.getState().myCertificates().find((x) => x.courseId === courseId);
+    if (c) {
       setCert(c);
       setShowCert(true);
-    } else {
-      toast.success(t("toast.lessonDone"));
-      if (next) router.push(`/courses/${courseId}/lessons/${next.id}`);
     }
   }
 
@@ -100,12 +107,12 @@ function Lesson() {
 
       <VideoPlayer key={lesson.id} url={lesson.videoUrl ?? ""} durationMin={lesson.durationMin} onProgress={setWatched} />
 
-      {/* Watch-gate progress */}
+      {/* Watch progress (informational) */}
       {hasVideo && !done && (
         <div className="mt-3 flex items-center gap-3">
           <Progress value={watched} className="flex-1" />
-          <span className={`text-xs font-medium ${videoOk ? "text-success" : "text-muted-foreground"}`}>
-            {videoOk ? t("courses.watchDone") : `${watched}% / ${WATCH_GATE}%`}
+          <span className={`text-xs font-medium ${watchedEnough ? "text-success" : "text-muted-foreground"}`}>
+            {watchedEnough ? t("courses.watchDone") : `${watched}%`}
           </span>
         </div>
       )}
@@ -128,26 +135,38 @@ function Lesson() {
             </Button>
           </Link>
         )}
-        <Button onClick={markComplete} disabled={!canComplete}>
-          <CheckCircle2 className="h-4 w-4" />
-          {done ? t("common.completed") : t("courses.markComplete")}
-        </Button>
-        {next &&
-          (videoOk ? (
-            <Link href={`/courses/${courseId}/lessons/${next.id}`}>
-              <Button variant="outline">
-                {t("courses.nextLesson")} <ArrowRight className="h-4 w-4" />
-              </Button>
-            </Link>
-          ) : (
-            <Button variant="outline" disabled title={t("courses.watchToUnlock")}>
-              <Lock className="h-4 w-4" /> {t("courses.nextLesson")}
+
+        {/* 1–2–3 flow: complete this lesson (answer the quiz) → continue. */}
+        {!done && (
+          <Button onClick={markComplete} disabled={!canComplete}>
+            <CheckCircle2 className="h-4 w-4" />
+            {next ? t("courses.completeContinue") : t("courses.markComplete")}
+          </Button>
+        )}
+
+        {done && next && (
+          <Link href={`/courses/${courseId}/lessons/${next.id}`}>
+            <Button variant="outline">
+              {t("courses.nextLesson")} <ArrowRight className="h-4 w-4" />
             </Button>
-          ))}
-        {!next && done && (
-          <span className="font-medium text-success">{t("courses.courseComplete")}</span>
+          </Link>
+        )}
+
+        {done && !next && !courseComplete && (
+          <span className="font-medium text-success">{t("common.completed")}</span>
+        )}
+
+        {/* Whole course finished → explicit certificate button. */}
+        {courseComplete && (
+          <Button onClick={openCertificate}>
+            <Award className="h-4 w-4" /> {t("courses.getCertificate")}
+          </Button>
         )}
       </div>
+
+      {courseComplete && (
+        <p className="mt-3 text-sm font-medium text-success">{t("courses.courseComplete")}</p>
+      )}
 
       <CertificateModal cert={cert} open={showCert} onClose={() => { setShowCert(false); router.push("/dashboard"); }} />
     </div>
